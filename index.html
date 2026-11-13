@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Что поесть? Студия</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +29,11 @@
 }
 /* inside Telegram the insets come from Telegram alone, otherwise the notch is counted twice */
 html.tg { --st: 0px; --sb: 0px; padding: 0 !important; }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* no double-tap zoom and no rubber-band bounce: fast taps on the bottom bar must not move the page */
+html { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overscroll-behavior: none; }
+body { overscroll-behavior: none; }
+.dock button, .cta, .chip { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 html, body { min-height: 100%; }
 body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--font-display); -webkit-font-smoothing: antialiased; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: calc(var(--st) + var(--tg-top, 0px)); z-index: 10; background: var(--bg); }
@@ -240,7 +244,7 @@ img { display: block; }
   .sheet.full { max-width: 760px; height: min(100%, 860px); border: 0; }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .poster h1, .p-side, .p-cta { animation: rise .6s ease; }
+  .intro .poster h1, .intro .p-side, .intro .p-cta { animation: rise .6s ease; }
   .p-side { animation-delay: .12s; } .p-cta { animation-delay: .2s; }
   @keyframes rise { from { transform: translateY(8px); } to { transform: none; } }
 }
@@ -512,12 +516,15 @@ function fitPoster() {
   const top = p.getBoundingClientRect().top + window.scrollY;
   p.style.aspectRatio = "auto";
   const h = Math.max(430, Math.round(window.innerHeight - top - dock.offsetHeight - 14));
-  p.style.height = h + "px";
+  if (Math.abs(h - (parseFloat(p.style.height) || 0)) > 2) p.style.height = h + "px";
   p.classList.toggle("short", h < 520);   // on short screens the "today" block would cover the dish
 }
 function go(view, dish) {
+  // tapping the tab you are already on only scrolls up: no rebuild, nothing jumps
+  if (state.view === view && (state.dish || null) === (dish || null)) { window.scrollTo(0, 0); return; }
   state.view = view; state.dish = dish || null;
-  render(); window.scrollTo({ top: 0 });
+  $("#main").classList.remove("intro");
+  render(); window.scrollTo(0, 0);
   try { history.replaceState(null, "", "#" + (view === "dish" ? "dish-" + dish : view)); } catch {}
 }
 
@@ -641,6 +648,7 @@ window.addEventListener && window.addEventListener("hashchange", route);
 window.addEventListener && window.addEventListener("resize", fitPoster);
 document.fonts && document.fonts.ready && document.fonts.ready.then(fitPoster);
 tgInit();
+$("#main").classList.add("intro");
 route();
 </script>
 </body>
