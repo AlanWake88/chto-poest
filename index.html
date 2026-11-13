@@ -110,6 +110,9 @@ img { display: block; }
 
 /* dish page */
 .back { font: 400 12px/1 var(--font-mono); padding-block: 16px 12px; display: inline-block; }
+/* Telegram shows its own Back button, ours would only take space */
+html.tg .back { display: none; }
+html.tg .dish-l { padding-top: 14px; }
 .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 16px; }
 .controls .cta { text-align: center; }
 .stepper { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; border-block: 1px solid var(--hair); padding-block: 10px; }
@@ -508,16 +511,18 @@ function render() {
   $("#shopLabel").textContent = `Покупки${state.cart.length ? ` · ${state.cart.length}` : ""}`;
   fitPoster();
 }
-// on phones the poster fills exactly the space between the header and the bottom bar, whatever the screen height
+// on phones the first photo (home poster, dish photo) fills exactly the space between the header and the bottom bar
 function fitPoster() {
-  const p = $(".poster"), dock = $(".dock");
-  if (!p) return;
-  if (window.innerWidth >= 620) { p.style.height = ""; p.style.aspectRatio = ""; p.classList.remove("short"); return; }
-  const top = p.getBoundingClientRect().top + window.scrollY;
-  p.style.aspectRatio = "auto";
-  const h = Math.max(430, Math.round(window.innerHeight - top - dock.offsetHeight - 14));
-  if (Math.abs(h - (parseFloat(p.style.height) || 0)) > 2) p.style.height = h + "px";
-  p.classList.toggle("short", h < 520);   // on short screens the "today" block would cover the dish
+  const dock = $(".dock");
+  [$(".poster"), $(".dish-l .plate")].forEach(p => {
+    if (!p) return;
+    if (window.innerWidth >= 620) { p.style.height = ""; p.style.aspectRatio = ""; p.classList.remove("short"); return; }
+    const top = p.getBoundingClientRect().top + window.scrollY;
+    const h = Math.max(430, Math.round(window.innerHeight - top - dock.offsetHeight - 14));
+    p.style.aspectRatio = "auto";
+    if (Math.abs(h - (parseFloat(p.style.height) || 0)) > 2) p.style.height = h + "px";
+    p.classList.toggle("short", h < 520);   // on short screens the "today" block would cover the dish
+  });
 }
 function go(view, dish) {
   // tapping the tab you are already on only scrolls up: no rebuild, nothing jumps
