@@ -68,6 +68,7 @@ img { display: block; }
 .p-txt b { font: 500 13px/1.2 var(--font-display); }
 .p-txt em { font: 400 11px/1.3 var(--font-mono); font-style: normal; text-decoration: underline; text-underline-offset: 3px; }
 .p-cta { margin-top: auto; }
+.poster.short .p-side { display: none; }
 .cta { display: inline-block; border: 1px solid var(--ink); padding: 11px 18px; font: 500 13px/1 var(--font-display); letter-spacing: .06em; text-transform: uppercase; background: color-mix(in srgb, var(--card) 70%, transparent); }
 .cta.solid { background: var(--ink); color: var(--card); }
 .cta:active { transform: translateY(1px); }
@@ -507,10 +508,12 @@ function render() {
 function fitPoster() {
   const p = $(".poster"), dock = $(".dock");
   if (!p) return;
-  if (window.innerWidth >= 620) { p.style.height = ""; p.style.aspectRatio = ""; return; }
+  if (window.innerWidth >= 620) { p.style.height = ""; p.style.aspectRatio = ""; p.classList.remove("short"); return; }
   const top = p.getBoundingClientRect().top + window.scrollY;
   p.style.aspectRatio = "auto";
-  p.style.height = Math.max(430, Math.round(window.innerHeight - top - dock.offsetHeight - 14)) + "px";
+  const h = Math.max(430, Math.round(window.innerHeight - top - dock.offsetHeight - 14));
+  p.style.height = h + "px";
+  p.classList.toggle("short", h < 520);   // on short screens the "today" block would cover the dish
 }
 function go(view, dish) {
   state.view = view; state.dish = dish || null;
