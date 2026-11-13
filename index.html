@@ -28,21 +28,22 @@
 * { box-sizing: border-box; }
 html, body { min-height: 100%; }
 body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--font-display); -webkit-font-smoothing: antialiased; }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: calc(env(safe-area-inset-top, 0px) + var(--tg-top, 0px)); z-index: 10; background: var(--bg); }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; padding: 0; }
 button:focus-visible, input:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
 img { display: block; }
 
-.wrap { max-width: 520px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 calc(104px + env(safe-area-inset-bottom, 0px)); }
+.wrap { max-width: 520px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px) + var(--tg-bottom, 0px)); }
 .mono { font: 400 11px/1.4 var(--font-mono); letter-spacing: .02em; }
 .spaced { font: 400 11px/1.4 var(--font-mono); letter-spacing: .42em; text-transform: uppercase; color: var(--muted); }
 
 /* top bar */
-.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 14px 12px; border-bottom: 1px solid var(--hair); }
+.wrap { padding-top: var(--tg-top, 0px); }
+.bar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--tg-top, 0px)); z-index: 5; background: var(--bg); display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 14px 12px; border-bottom: 1px solid var(--hair); }
 .bar .brand { font: 600 15px/1 var(--font-display); letter-spacing: .02em; text-transform: uppercase; }
 .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--bg); border-top: 1px solid var(--line);
-  padding: 0 max(8px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(8px, env(safe-area-inset-left, 0px)); }
+  padding: 0 max(8px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + var(--tg-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
 .dock-in { max-width: 520px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
 .dock button { position: relative; display: grid; justify-items: center; gap: 5px; padding: 12px 2px 11px; font: 400 10px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .dock svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
@@ -168,8 +169,8 @@ img { display: block; }
 /* overlays */
 .veil { position: fixed; inset: 0; z-index: 20; background: #1E1B1766; display: grid; align-items: end; justify-items: center; }
 .sheet { width: 100%; max-width: 520px; max-height: 92vh; overflow: auto; background: var(--bg); border-top: 1px solid var(--ink);
-  padding: 20px max(16px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 18px; align-content: start; }
-.sheet.full { height: 100%; max-height: 100%; border-top: 0; padding-top: calc(18px + env(safe-area-inset-top, 0px)); grid-template-rows: auto auto 1fr auto; }
+  padding: 20px max(16px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px) + var(--tg-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 18px; align-content: start; }
+.sheet.full { height: 100%; max-height: 100%; border-top: 0; padding-top: calc(18px + env(safe-area-inset-top, 0px) + var(--tg-top, 0px)); grid-template-rows: auto auto 1fr auto; }
 .sheet-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .sheet h2 { margin: 0; font: 600 26px/1 var(--font-display); text-transform: uppercase; letter-spacing: -.01em; }
 .cook-no { font: 400 54px/1 var(--font-serif); color: var(--dot); }
@@ -196,11 +197,11 @@ img { display: block; }
   .narrow, .flow { max-width: 620px; margin-inline: auto; }
 }
 @media (min-width: 960px) {
-  .wrap { max-width: 1200px; padding-left: max(40px, env(safe-area-inset-left, 0px)); padding-right: max(40px, env(safe-area-inset-right, 0px)); padding-block: 0 72px; }
+  .wrap { max-width: 1200px; padding-left: max(40px, env(safe-area-inset-left, 0px)); padding-right: max(40px, env(safe-area-inset-right, 0px)); padding-bottom: 72px; }
   .bar { padding-block: 20px 18px; }
   .bar .spaced { display: none; }
   /* the bottom bar becomes a plain text menu in the header */
-  .dock { top: env(safe-area-inset-top, 0px); bottom: auto; left: 0; right: 0; border-top: 0; background: none; pointer-events: none; padding: 0 40px; }
+  .dock { top: calc(env(safe-area-inset-top, 0px) + var(--tg-top, 0px)); bottom: auto; left: 0; right: 0; border-top: 0; background: none; pointer-events: none; padding: 0 40px; }
   .dock-in { max-width: 1120px; display: flex; justify-content: flex-end; gap: 30px; }
   .dock button { pointer-events: auto; display: block; padding: 22px 0 20px; font-size: 11px; }
   .dock svg { display: none; }
@@ -262,6 +263,7 @@ img { display: block; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 const DATA = {"DISHES": {"omelet": {"name": "Омлет из 3 яиц со шпинатом и сыром, тост", "time": 10, "kcal": 480, "p": 32, "f": 30, "c": 20, "price": 95, "tools": ["Глубокая миска", "Вилка", "Сковорода с крышкой", "Лопатка"], "ing": [{"n": "Яйца", "q": "3 шт", "a": ["eggs"]}, {"n": "Шпинат (свежий или замороженный)", "q": "горсть"}, {"n": "Сыр твёрдый", "q": "30 г", "a": ["milk"], "alt": {"n": "Зелень (укроп, лук) вместо сыра", "q": "горсть"}}, {"n": "Хлеб цельнозерновой", "q": "1 ломтик", "a": ["gluten"], "alt": {"n": "Хлебцы рисовые", "q": "2 шт"}}, {"n": "Растительное масло", "q": "1 ч. л."}, {"n": "Соль", "q": "щепотка"}], "steps": ["Разбей 3 яйца в глубокую миску: стукни яйцом о край миски и большими пальцами раздвинь скорлупу. Если в миску попал кусочек скорлупы, достань его ложкой.", "Добавь щепотку соли (сколько берётся двумя пальцами) и взбивай вилкой 30 секунд, пока белок и желток не смешаются в одну жёлтую массу.", "Поставь сковороду на средний огонь, налей 1 чайную ложку масла и подожди 1 минуту, пока масло не начнёт блестеть.", "Положи шпинат и помешивай лопаткой 1 минуту. Он сильно уменьшится, так и должно быть.", {"i": 2, "t": "Вылей яйца на сковороду и больше не мешай. Нарежь сыр мелкими кусочками и посыпь сверху.", "alt": "Вылей яйца на сковороду и больше не мешай. Мелко нарежь зелень и посыпь сверху."}, "Убавь огонь до слабого, накрой крышкой и жди 3–4 минуты. Омлет готов, когда сверху не осталось жидкого яйца.", {"i": 3, "t": "Пока готовится омлет, подсуши хлеб в тостере или на сухой сковороде по 1 минуте с каждой стороны. Лопаткой переложи омлет на тарелку.", "alt": "Лопаткой переложи омлет на тарелку. Рядом положи 2 рисовых хлебца, подсушивать их не нужно."}], "tip": "Если снизу пригорает, а сверху ещё жидко, значит огонь слишком сильный. В следующий раз сделай слабее."}, "buckwheat": {"name": "Гречка с куриной грудкой и свежим огурцом", "time": 25, "kcal": 620, "p": 48, "f": 12, "c": 75, "price": 140, "tools": ["Кастрюля с крышкой", "Сито или миска", "Сковорода", "Нож и доска", "Лопатка"], "ing": [{"n": "Гречка", "q": "90 г (½ стакана)"}, {"n": "Вода для гречки", "q": "1 стакан"}, {"n": "Куриная грудка", "q": "150 г"}, {"n": "Огурец", "q": "1 шт"}, {"n": "Растительное масло", "q": "1 ч. л."}, {"n": "Соль, перец", "q": "по вкусу"}], "steps": ["Отмерь полстакана гречки и высыпь в сито или миску. Залей холодной водой, перемешай рукой и слей воду. Так смываются пыль и мелкий мусор.", "Пересыпь гречку в кастрюлю. Налей воды в 2 раза больше, чем гречки: на полстакана гречки нужен 1 стакан воды. Добавь ⅓ чайной ложки соли.", "Поставь кастрюлю на сильный огонь. Когда вода закипит (появятся большие пузыри), убавь огонь до самого слабого и накрой крышкой.", "Вари 15 минут и не открывай крышку. Потом выключи огонь и оставь ещё на 5 минут, чтобы гречка дошла.", "Пока варится гречка: помой куриную грудку, промокни бумажным полотенцем и нарежь кубиками примерно 2 см. После сырой курицы обязательно помой руки и доску с мылом.", "Разогрей сковороду с 1 чайной ложкой масла на среднем огне. Выложи курицу, посоли и поперчи. Жарь 7–8 минут, переворачивая лопаткой. Разрежь самый большой кусочек: внутри не должно быть розового.", "Помой огурец и нарежь кружочками. Выложи в тарелку гречку, курицу и огурец."], "tip": "Если вода выкипела, а гречка ещё твёрдая, добавь 2–3 ложки горячей воды и подержи под крышкой ещё 5 минут."}, "soup": {"name": "Куриный суп с вермишелью", "time": 50, "kcal": 330, "p": 26, "f": 8, "c": 38, "price": 80, "tools": ["Кастрюля 2–3 л", "Шумовка", "Нож и доска", "Половник"], "ing": [{"n": "Курица (бедро или голень)", "q": "120 г"}, {"n": "Вода", "q": "500 мл"}, {"n": "Картофель", "q": "1 шт"}, {"n": "Морковь и лук", "q": "по ⅓ шт"}, {"n": "Вермишель", "q": "30 г", "a": ["gluten"], "alt": {"n": "Рисовая лапша тонкая", "q": "30 г"}}, {"n": "Соль, лавровый лист", "q": "½ ч. л. + 1 лист"}, {"n": "Зелень", "q": "по желанию"}], "steps": ["Положи курицу в кастрюлю, залей 500 мл холодной воды и поставь на сильный огонь.", "Когда закипит, на поверхности появится серая пена. Собери её шумовкой: так бульон будет прозрачным.", "Убавь огонь до слабого, положи лавровый лист и вари 30 минут под приоткрытой крышкой.", "Пока варится бульон, почисти картофель, морковь и лук. Картофель нарежь кубиками, морковь кружочками, лук мелко.", "Достань курицу на тарелку, а в бульон положи картофель, морковь и лук. Посоли ½ чайной ложки и вари 10 минут.", "Пока варятся овощи, сними мясо с костей вилкой, разбери на кусочки и верни в суп.", {"i": 4, "t": "Всыпь вермишель, помешай и вари ещё 3–4 минуты, пока она не станет мягкой.", "alt": "Всыпь рисовую лапшу, помешай и вари 2–3 минуты: она готовится быстрее и легко разваривается."}, "Выключи огонь, посыпь рубленой зеленью и дай супу постоять 5 минут."], "tip": "Суп удобнее варить сразу на 3–4 порции: просто умножь все продукты, время почти не изменится."}, "pasta": {"name": "Паста с индейкой в томатном соусе", "time": 25, "kcal": 640, "p": 45, "f": 14, "c": 80, "price": 160, "tools": ["Большая кастрюля", "Дуршлаг", "Сковорода", "Лопатка", "Нож и доска"], "ing": [{"n": "Паста (макароны)", "q": "90 г", "a": ["gluten"], "alt": {"n": "Паста из гречневой или рисовой муки", "q": "90 г"}}, {"n": "Фарш индейки", "q": "150 г"}, {"n": "Томаты в собственном соку", "q": "200 г (½ банки)"}, {"n": "Чеснок", "q": "1 зубчик"}, {"n": "Растительное масло", "q": "1 ч. л."}, {"n": "Соль", "q": "1 ч. л. в воду + ⅓ ч. л. в соус"}, {"n": "Базилик", "q": "по желанию"}], "steps": ["Налей в большую кастрюлю 2 литра воды, накрой крышкой и поставь на сильный огонь. Вода закипит примерно через 10 минут.", "Пока вода греется, очисти зубчик чеснока от шелухи и мелко нарежь ножом.", "Разогрей сковороду с 1 чайной ложкой масла на среднем огне. Выложи фарш и разбивай его лопаткой на мелкие кусочки. Жарь 6–7 минут, пока весь фарш не станет светлым, без розового.", "Добавь чеснок, томаты из банки (крупные помидоры разомни лопаткой) и ⅓ чайной ложки соли. Убавь огонь до слабого и туши 10 минут, иногда помешивая.", {"i": 0, "t": "Когда вода в кастрюле закипит, положи 1 чайную ложку соли и всыпь пасту. Сразу перемешай, чтобы она не слиплась. Вари столько минут, сколько написано на пачке (обычно 8–11).", "alt": "Когда вода в кастрюле закипит, положи 1 чайную ложку соли и всыпь гречневую или рисовую пасту. Сразу перемешай: такая паста слипается сильнее обычной. Вари по времени с пачки (обычно 5–8 минут) и попробуй за минуту до конца, она быстро разваривается."}, "Поставь дуршлаг в раковину и вылей в него пасту вместе с водой. Осторожно: пар очень горячий, держи лицо подальше.", "Переложи пасту в сковороду с соусом и перемешай. Сверху можно положить листики базилика."], "tip": "Чтобы проверить, готова ли паста, достань одну макаронину и попробуй: она должна быть мягкой, но не разваливаться."}, "shawarma": {"name": "Домашняя шаурма с курицей", "time": 25, "kcal": 600, "p": 38, "f": 26, "c": 55, "price": 160, "buy": {"where": "в шаурмичной или через доставку", "price": "250–400 ₽", "kcal": "600–900 ккал"}, "tools": ["Сковорода", "Лопатка", "Нож и доска", "Миска для соуса"], "ing": [{"n": "Лаваш тонкий", "q": "1 шт", "a": ["gluten"]}, {"n": "Куриное бедро без кожи", "q": "150 г"}, {"n": "Капуста белокочанная", "q": "80 г"}, {"n": "Огурец и помидор", "q": "по ½ шт"}, {"n": "Соус: сметана 15% и чеснок", "q": "2 ст. л. + 1 зубчик", "a": ["milk"], "alt": {"n": "Соус: кетчуп и чеснок", "q": "2 ст. л. + 1 зубчик"}}, {"n": "Растительное масло", "q": "1 ч. л."}, {"n": "Соль, паприка", "q": "по ⅓ ч. л."}], "steps": ["Нарежь курицу полосками шириной в палец. Посыпь солью и паприкой и перемешай руками. После сырой курицы помой руки с мылом.", "Разогрей сковороду с 1 чайной ложкой масла на среднем огне. Жарь курицу 8–10 минут, переворачивая, пока внутри не останется розового.", "Пока жарится курица, тонко нашинкуй капусту, а огурец и помидор нарежь тонкими полосками.", {"i": 4, "t": "Сделай соус: смешай в миске 2 столовые ложки сметаны, мелко натёртый зубчик чеснока и щепотку соли.", "alt": "Сделай соус: смешай в миске 2 столовые ложки кетчупа и мелко натёртый зубчик чеснока."}, "Расстели лаваш на столе и намажь соусом середину, оставив края пустыми.", "Выложи полоской ближе к нижнему краю курицу, капусту, огурец и помидор.", "Подверни нижний край на начинку, затем загни боковые края внутрь и плотно сверни рулетом.", "Обжарь шаурму на сухой сковороде по 1–2 минуты с каждой стороны, чтобы лаваш стал хрустящим."], "tip": "Не клади слишком много начинки, иначе лаваш порвётся. Если порвался, заверни во второй лаваш."}}, "ALLERGENS": {"milk": "молоко", "eggs": "яйца", "gluten": "глютен (пшеница, овёс)", "fish": "рыба", "nuts": "орехи", "honey": "мёд", "berries": "ягоды (клубника и др.)", "citrus": "цитрусовые"}, "FLOWS": {"omelet": {"branches": [{"items": [0, 5], "acts": [{"t": "Взбить вилкой", "s": 2}]}, {"items": [1, 4], "acts": [{"t": "Обжарить шпинат 1 мин", "s": 4}]}], "join": {"t": "Вылить яйца на сковороду", "s": 5}, "after": [{"t": "Посыпать сыром", "i": 2, "alt": "Посыпать зеленью", "s": 5}, {"t": "Под крышкой 3–4 мин", "s": 6}, {"t": "Подсушить хлеб", "i": 3, "alt": "Положить хлебцы", "s": 7}]}, "buckwheat": {"branches": [{"items": [0, 1], "acts": [{"t": "Промыть", "s": 1}, {"t": "Варить 15 мин под крышкой", "s": 4}]}, {"items": [2, 4, 5], "acts": [{"t": "Нарезать кубиками", "s": 5}, {"t": "Жарить 7–8 мин", "s": 6}]}, {"items": [3], "acts": [{"t": "Нарезать кружочками", "s": 7}]}], "join": {"t": "Выложить на тарелку", "s": 7}, "after": []}, "soup": {"branches": [{"items": [0, 1, 5], "acts": [{"t": "Снять пену", "s": 2}, {"t": "Варить бульон 30 мин", "s": 3}]}, {"items": [2, 3], "acts": [{"t": "Почистить и нарезать", "s": 4}]}], "join": {"t": "Овощи в бульон, 10 мин", "s": 5}, "after": [{"t": "Мясо снять с костей и вернуть", "s": 6}, {"t": "Вермишель, 3–4 мин", "i": 4, "alt": "Рисовая лапша, 2–3 мин", "s": 7}, {"t": "Посыпать зеленью", "s": 8}]}, "pasta": {"branches": [{"items": [0, 5], "acts": [{"t": "Варить 8–11 мин", "i": 0, "alt": "Варить 5–8 мин", "s": 5}, {"t": "Слить воду", "s": 6}]}, {"items": [1, 3, 4, 2], "acts": [{"t": "Нарезать чеснок", "s": 2}, {"t": "Жарить фарш 6–7 мин", "s": 3}, {"t": "Томаты, тушить 10 мин", "s": 4}]}], "join": {"t": "Смешать пасту с соусом", "s": 7}, "after": [{"t": "Украсить базиликом", "s": 7}]}, "shawarma": {"branches": [{"items": [1, 5, 6], "acts": [{"t": "Нарезать полосками", "s": 1}, {"t": "Жарить 8–10 мин", "s": 2}]}, {"items": [2, 3], "acts": [{"t": "Нашинковать и нарезать", "s": 3}]}, {"items": [4], "acts": [{"t": "Смешать соус", "s": 4}]}], "join": {"t": "Выложить на лаваш", "s": 6}, "after": [{"t": "Свернуть рулетом", "s": 7}, {"t": "Обжарить по 1–2 мин", "s": 8}]}}};
 const { DISHES, ALLERGENS, FLOWS } = DATA;
@@ -284,6 +286,29 @@ const VIS = {
 const SECTIONS = [["Мясо и рыба", /кур|фарш|говядин|рыб/i], ["Молочное и яйца", /яйц|сыр|сметан|молок|йогурт/i], ["Крупы и хлеб", /гречк|паста|вермишел|лапша|хлеб|лаваш|хлебц/i],
   ["Овощи и зелень", /картоф|морков|лук|огур|помидор|капуст|шпинат|зелень|базилик|чеснок|томат|кетчуп/i]];
 const BASE = "Специи и базовое";
+
+/* Telegram Mini App: full screen, safe insets, native back button */
+const tg = window.Telegram && window.Telegram.WebApp;
+const inTg = !!(tg && tg.platform && tg.platform !== "unknown");
+const tgAtLeast = (v) => inTg && tg.isVersionAtLeast && tg.isVersionAtLeast(v);
+function tgInsets() {
+  const s = tg.safeAreaInset || {}, c = tg.contentSafeAreaInset || {};
+  document.documentElement.style.setProperty("--tg-top", ((s.top || 0) + (c.top || 0)) + "px");
+  document.documentElement.style.setProperty("--tg-bottom", ((s.bottom || 0) + (c.bottom || 0)) + "px");
+}
+function tgInit() {
+  if (!inTg) return;
+  const safe = (f) => { try { f(); } catch {} };
+  tg.ready(); safe(() => tg.expand());
+  safe(() => tg.setHeaderColor("#E6E0D5")); safe(() => tg.setBackgroundColor("#E6E0D5")); safe(() => tg.setBottomBarColor && tg.setBottomBarColor("#E6E0D5"));
+  safe(() => tg.disableVerticalSwipes && tg.disableVerticalSwipes());
+  if (tgAtLeast("8.0")) {
+    ["safeAreaChanged", "contentSafeAreaChanged", "fullscreenChanged"].forEach(ev => tg.onEvent(ev, tgInsets));
+    if (["ios", "android"].includes(tg.platform)) safe(() => tg.requestFullscreen());
+    tgInsets();
+  }
+  safe(() => tg.BackButton.onClick(() => { if (ctx) closeSheet(); else go(state.view === "dish" ? "menu" : "home"); }));
+}
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem("chtoPoestStudio:" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
@@ -464,6 +489,7 @@ function shopHtml() {
 function render() {
   const v = state.view;
   $("#main").innerHTML = v === "menu" ? menuHtml() : v === "shop" ? shopHtml() : v === "dish" && DISHES[state.dish] ? dishHtml(state.dish) : homeHtml();
+  if (inTg) { try { v === "home" && !ctx ? tg.BackButton.hide() : tg.BackButton.show(); } catch {} }
   $("#nav-home").setAttribute("aria-current", v === "home" ? "page" : "false");
   $("#nav-menu").setAttribute("aria-current", v === "menu" || v === "dish" ? "page" : "false");
   $("#nav-shop").setAttribute("aria-current", v === "shop" ? "page" : "false");
@@ -501,6 +527,7 @@ function settingsHtml() {
     <div style="display:grid;gap:10px"><span class="spaced">Аллергия или не ем</span>
       <div class="chips">${Object.entries(ALLERGENS).map(([k, n]) => `<button class="chip" type="button" data-allergy="${k}" aria-pressed="${state.allergies.includes(k)}">${n}</button>`).join("")}</div>
       <p class="mono" style="margin:0;color:var(--muted)">Где продукт можно заменить, заменим в составе и в шагах. Где нельзя, предупредим на странице блюда.</p></div>
+    ${tgAtLeast("8.0") && tg.addToHomeScreen ? `<button class="cta" type="button" data-homescreen="1" style="text-align:center">Добавить на экран телефона</button>` : ""}
     <button class="cta solid" type="button" data-close="1" style="text-align:center">Готово</button>`;
 }
 function cookHtml() {
@@ -567,6 +594,7 @@ document.addEventListener("click", (e) => {
   if (ds.allergy) { state.allergies = toggleIn(state.allergies, ds.allergy); store.set("allergies", state.allergies); render(); return paint(`[data-allergy="${ds.allergy}"]`); }
   if (ds.cart) { state.cart = toggleIn(state.cart, ds.cart); store.set("cart", state.cart); toast(state.cart.includes(ds.cart) ? "Добавлено в покупки" : "Убрано из покупок"); render(); $(`#main [data-cart="${ds.cart}"]`)?.focus(); return; }
   if (ds.copy) return copyList();
+  if (ds.homescreen) { try { tg.addToHomeScreen(); } catch {} return; }
   if (ds.cook) return openCook(ds.cook);
   if (ds.nav && ctx && ctx.type === "cook") return cookNav(+ds.nav);
   if (ds.timer && ctx && ctx.type === "cook") {
@@ -590,6 +618,7 @@ function route() {
   render();
 }
 window.addEventListener && window.addEventListener("hashchange", route);
+tgInit();
 route();
 </script>
 </body>
