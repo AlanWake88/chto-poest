@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Что поесть? Студия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Philosopher:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+/* Layout: an editorial menu. Studio photographs on a greige ground, thin-ruled spec cards laid over the empty part of each photo,
+   one geometric display face, one flared serif for card titles, mono for data. A single photographic look, no dark variant. */
+:root {
+  color-scheme: light;
+  --bg: #E6E0D5;
+  --card: #EFEAE1;
+  --ink: #1E1B17;
+  --muted: #6C6559;
+  --line: #1E1B1752;
+  --hair: #1E1B1726;
+  --dot: #C4572E;
+  --stone: #CFC5B4;
+  --font-display: "Jost", "Futura", "Century Gothic", system-ui, sans-serif;
+  --font-serif: "Philosopher", "Optima", "Candara", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--font-display); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; }
+button:focus-visible, input:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+img { display: block; }
+
+.wrap { max-width: 520px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 calc(104px + env(safe-area-inset-bottom, 0px)); }
+.mono { font: 400 11px/1.4 var(--font-mono); letter-spacing: .02em; }
+.spaced { font: 400 11px/1.4 var(--font-mono); letter-spacing: .42em; text-transform: uppercase; color: var(--muted); }
+
+/* top bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 14px 12px; border-bottom: 1px solid var(--hair); }
+.bar .brand { font: 600 15px/1 var(--font-display); letter-spacing: .02em; text-transform: uppercase; }
+.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--bg); border-top: 1px solid var(--line);
+  padding: 0 max(8px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(8px, env(safe-area-inset-left, 0px)); }
+.dock-in { max-width: 520px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+.dock button { position: relative; display: grid; justify-items: center; gap: 5px; padding: 12px 2px 11px; font: 400 10px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.dock svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.dock button[aria-current="page"] { color: var(--ink); }
+.dock button[aria-current="page"]::before { content: ""; position: absolute; top: -1px; left: 28%; right: 28%; height: 2px; background: var(--dot); }
+
+/* poster: photo with the text laid over its empty upper part */
+.poster { position: relative; margin-top: 14px; aspect-ratio: 2 / 3; max-width: 100%; overflow: hidden; background: var(--stone); }
+.poster > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+.p-over { position: absolute; inset: 0; padding: 5% 6%; display: flex; flex-direction: column; align-items: flex-start; }
+.p-top { width: 100%; display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.pill { border: 1px solid var(--ink); border-radius: 99px; padding: 4px 12px; font: 400 11px/1.3 var(--font-mono); white-space: nowrap; }
+.poster h1 { margin: 6% 0 0; font: 600 clamp(38px, 13vw, 68px)/.92 var(--font-display); letter-spacing: -.02em; text-transform: uppercase; }
+.p-sub { margin: 10px 0 0; font-size: 15px; line-height: 1.25; }
+.p-side { margin-top: 4.5%; display: grid; grid-template-columns: 54px minmax(0, 190px); gap: 12px; align-items: center; text-align: left; border-top: 1px solid var(--line); padding-top: 10px; }
+.p-side img { width: 54px; aspect-ratio: 3 / 4; object-fit: cover; object-position: center 70%; }
+.p-txt { display: grid; gap: 2px; font-size: 12.5px; line-height: 1.3; }
+.p-txt b { font: 500 13px/1.2 var(--font-display); }
+.p-txt em { font: 400 11px/1.3 var(--font-mono); font-style: normal; text-decoration: underline; text-underline-offset: 3px; }
+.p-cta { margin-top: auto; }
+.cta { display: inline-block; border: 1px solid var(--ink); padding: 11px 18px; font: 500 13px/1 var(--font-display); letter-spacing: .06em; text-transform: uppercase; background: color-mix(in srgb, var(--card) 70%, transparent); }
+.cta.solid { background: var(--ink); color: var(--card); }
+.cta:active { transform: translateY(1px); }
+
+.lead { display: grid; gap: 14px; padding-block: 34px 8px; }
+.lead p { margin: 0; font-size: 17px; line-height: 1.45; max-width: 34em; }
+.strip { display: grid; grid-auto-flow: column; grid-auto-columns: 44%; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+.strip::-webkit-scrollbar { display: none; }
+.tile { text-align: left; display: grid; gap: 8px; }
+.tile img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: center 70%; }
+.tile b { font: 700 16px/1.15 var(--font-serif); }
+.tile span { color: var(--muted); }
+
+/* plate = photo + spec card */
+.sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-block: 30px 14px; }
+.sec-head h2 { margin: 0; font: 600 30px/1 var(--font-display); letter-spacing: -.01em; text-transform: uppercase; }
+.plates { display: grid; gap: 28px; }
+.plate { position: relative; display: block; width: 100%; text-align: left; aspect-ratio: 2 / 3; overflow: hidden; background: var(--stone); }
+.plate > img { width: 100%; height: 100%; object-fit: cover; }
+.plate .no { position: absolute; left: 4%; bottom: 4%; background: color-mix(in srgb, var(--card) 86%, transparent); color: var(--ink); padding: 5px 8px; letter-spacing: .3em; }
+.plate .open { position: absolute; right: 4%; bottom: 4%; font: 400 11px/1 var(--font-mono); background: color-mix(in srgb, var(--card) 86%, transparent); border: 1px solid var(--line); padding: 6px 9px; }
+.spec { position: absolute; top: 4%; left: 4%; width: min(76%, 300px); border: 1px solid var(--line); background: color-mix(in srgb, var(--card) 86%, transparent); padding: 10px 11px 0; display: grid; gap: 9px; }
+.plate.r .spec { left: auto; right: 4%; }
+.spec h3 { margin: 0; font: 700 17px/1.12 var(--font-serif); text-wrap: balance; }
+.spec ul { margin: 0; padding: 0; list-style: none; font-size: 11.5px; line-height: 1.25; columns: 2; column-gap: 12px; }
+.spec li { break-inside: avoid; }
+.spec .sls { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.sl { display: grid; grid-template-columns: 58px 1fr; align-items: center; gap: 6px; font: 400 10px/1.5 var(--font-mono); }
+.sl i { position: relative; height: 1px; background: var(--line); display: block; }
+.sl i::before { content: ""; position: absolute; inset: -3px 0; background: linear-gradient(to right, var(--line) 1px, transparent 1px) 0 0 / calc(50% - .5px) 100%; }
+.sl i::after { content: ""; position: absolute; top: -2.5px; left: calc(var(--v) * 100% - 3px); width: 6px; height: 6px; border-radius: 50%; background: var(--dot); }
+.spec footer { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); margin-inline: -11px; padding: 6px 11px 7px; }
+.spec footer span { font: 400 10px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.spec footer b { font: 400 15px/1 var(--font-serif); }
+
+/* dish page */
+.back { font: 400 12px/1 var(--font-mono); padding-block: 16px 12px; display: inline-block; }
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 16px; }
+.controls .cta { text-align: center; }
+.stepper { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; border-block: 1px solid var(--hair); padding-block: 10px; }
+.stepper div { display: flex; align-items: center; gap: 14px; }
+.stepper button { width: 34px; height: 34px; border: 1px solid var(--ink); border-radius: 50%; font-size: 18px; line-height: 1; }
+.stepper b { font: 400 20px/1 var(--font-serif); min-width: 1ch; text-align: center; }
+.rows { display: grid; }
+.row { display: grid; grid-template-columns: 1fr auto; gap: 2px 14px; padding-block: 10px; border-bottom: 1px solid var(--hair); align-items: baseline; }
+.row .q { font: 400 12px/1.4 var(--font-mono); text-align: right; white-space: nowrap; }
+.row .al { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font: 400 11px/1.4 var(--font-mono); color: var(--dot); }
+.row .al.ok { color: var(--muted); }
+.link { font: 400 11px/1.4 var(--font-mono); border-bottom: 1px solid currentColor; color: var(--ink); }
+.steps { display: grid; counter-reset: s; }
+.step { display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding-block: 14px; border-bottom: 1px solid var(--hair); text-align: left; width: 100%; align-items: start; }
+.step .n { font: 400 22px/1 var(--font-serif); color: var(--muted); }
+.step[aria-pressed="true"] .n { color: var(--dot); }
+.step[aria-pressed="true"] .t { color: var(--muted); }
+.step .tag { display: inline-block; margin-top: 6px; font: 400 10px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--line); padding: 4px 7px; margin-right: 6px; }
+.notes { display: grid; gap: 14px; }
+.notes p { margin: 0; }
+.notes .k { display: block; margin-bottom: 3px; color: var(--muted); }
+
+/* flow: round photos joined by thin lines */
+.flow { display: grid; justify-items: center; }
+.fcols { display: grid; width: 100%; }
+.fcol { display: grid; justify-items: center; align-content: start; grid-auto-rows: min-content; text-align: center; padding-inline: 4px; min-width: 0; }
+.srcs { display: flex; justify-content: center; padding-left: 10px; }
+.srcs img, .srcs i { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; object-position: center 72%; margin-left: -10px; box-shadow: 0 0 0 2px var(--bg); background: var(--stone); }
+.src { font: 400 10.5px/1.35 var(--font-mono); color: var(--muted); padding-top: 6px; text-wrap: balance; }
+.vline { width: 1px; height: 18px; background: var(--line); position: relative; margin-block: 4px; }
+.vline::after { content: ""; position: absolute; left: -3px; bottom: 0; width: 7px; height: 7px; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); transform: rotate(45deg); opacity: .55; }
+.fn { display: grid; justify-items: center; gap: 5px; max-width: 100%; text-align: center; }
+.fn .ph { width: 78px; height: 78px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--card); box-shadow: 0 0 0 1px var(--line); font: 400 26px/1 var(--font-serif); color: var(--muted); }
+.fn .ph img { width: 100%; height: 100%; object-fit: cover; }
+.fn .cap { font-size: 13px; line-height: 1.2; text-wrap: balance; }
+.fn small { font: 400 9.5px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.fn.done .ph { box-shadow: 0 0 0 2px var(--dot); }
+.fn.big .ph { width: 132px; height: 132px; }
+.fn.big .cap { font: 700 18px/1.15 var(--font-serif); }
+.fmerge { width: 100%; height: auto; display: block; color: var(--ink); opacity: .55; }
+.fend { font: 400 11px/1 var(--font-mono); letter-spacing: .42em; text-transform: uppercase; padding-top: 4px; }
+
+/* illustrated steps */
+.step.pic { grid-template-columns: 1fr; gap: 12px; padding-block: 18px; }
+.step.pic > img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--stone); }
+.step.pic .body { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; }
+.cook-img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: var(--stone); }
+
+/* shop */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); border-radius: 99px; padding: 6px 12px; font: 400 12px/1.2 var(--font-mono); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.receipt { border: 1px solid var(--line); background: var(--card); padding: 14px 14px 0; margin-top: 16px; }
+.receipt h3 { margin: 14px 0 2px; font: 400 10px/1 var(--font-mono); letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+.receipt h3:first-child { margin-top: 0; }
+.item { display: grid; grid-template-columns: 18px 1fr auto; gap: 10px; align-items: center; padding-block: 8px; border-bottom: 1px solid var(--hair); cursor: pointer; }
+.item input { appearance: none; width: 14px; height: 14px; border: 1px solid var(--ink); margin: 0; border-radius: 0; }
+.item input:checked { background: var(--dot); border-color: var(--dot); }
+.item.done span { text-decoration: line-through; color: var(--muted); }
+.item .q { font: 400 12px/1 var(--font-mono); }
+.receipt footer { display: flex; justify-content: space-between; align-items: baseline; margin-inline: -14px; padding: 10px 14px 12px; border-top: 1px solid var(--line); margin-top: -1px; }
+.receipt footer b { font: 400 22px/1 var(--font-serif); }
+.empty { border: 1px solid var(--line); padding: 22px 16px; display: grid; gap: 14px; justify-items: start; }
+.empty p { margin: 0; }
+
+/* overlays */
+.veil { position: fixed; inset: 0; z-index: 20; background: #1E1B1766; display: grid; align-items: end; justify-items: center; }
+.sheet { width: 100%; max-width: 520px; max-height: 92vh; overflow: auto; background: var(--bg); border-top: 1px solid var(--ink);
+  padding: 20px max(16px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 18px; align-content: start; }
+.sheet.full { height: 100%; max-height: 100%; border-top: 0; padding-top: calc(18px + env(safe-area-inset-top, 0px)); grid-template-rows: auto auto 1fr auto; }
+.sheet-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.sheet h2 { margin: 0; font: 600 26px/1 var(--font-display); text-transform: uppercase; letter-spacing: -.01em; }
+.cook-no { font: 400 54px/1 var(--font-serif); color: var(--dot); }
+.cook-text { margin: 0; font-size: 21px; line-height: 1.42; }
+.cook-body { display: grid; gap: 18px; align-content: start; }
+.timer { border: 1px solid var(--line); background: var(--card); padding: 14px; display: grid; gap: 12px; justify-items: start; }
+.timer-val { font: 400 44px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.timer-val.end { color: var(--dot); }
+.pair { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+.pair .cta { text-align: center; padding-block: 15px; }
+.cta[disabled] { opacity: .3; cursor: default; }
+.rule { height: 2px; background: var(--hair); position: relative; }
+.rule i { position: absolute; inset: 0 auto 0 0; background: var(--dot); }
+.toast { position: fixed; left: 50%; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 40; background: var(--ink); color: var(--card); padding: 10px 16px; font: 400 12px/1.3 var(--font-mono); max-width: calc(100% - 32px); text-align: center; }
+.foot { padding-top: 40px; display: grid; gap: 8px; color: var(--muted); }
+.foot p { margin: 0; font-size: 12px; }
+
+@media (min-width: 620px) {
+  .wrap { max-width: 760px; }
+  .plates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .strip { grid-auto-columns: 30%; }
+  .dock-in { max-width: 760px; }
+  .step.pic { grid-template-columns: 220px 1fr; align-items: start; }
+  .narrow, .flow { max-width: 620px; margin-inline: auto; }
+}
+@media (min-width: 960px) {
+  .wrap { max-width: 1200px; padding-left: max(40px, env(safe-area-inset-left, 0px)); padding-right: max(40px, env(safe-area-inset-right, 0px)); padding-block: 0 72px; }
+  .bar { padding-block: 20px 18px; }
+  .bar .spaced { display: none; }
+  /* the bottom bar becomes a plain text menu in the header */
+  .dock { top: env(safe-area-inset-top, 0px); bottom: auto; left: 0; right: 0; border-top: 0; background: none; pointer-events: none; padding: 0 40px; }
+  .dock-in { max-width: 1120px; display: flex; justify-content: flex-end; gap: 30px; }
+  .dock button { pointer-events: auto; display: block; padding: 22px 0 20px; font-size: 11px; }
+  .dock svg { display: none; }
+  .dock button[aria-current="page"]::before { top: auto; bottom: 13px; left: 0; right: 0; height: 1px; background: var(--ink); }
+  .toast { bottom: 28px; }
+
+  .poster { aspect-ratio: auto; overflow: visible; background: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 40%); gap: 56px; margin-top: 28px; align-items: stretch; }
+  .poster > img { position: static; grid-column: 2; grid-row: 1; width: 100%; height: min(760px, calc(100vh - 150px)); min-height: 520px; }
+  .p-over { position: static; grid-column: 1; grid-row: 1; padding: 6px 0 4px; }
+  .poster h1 { margin-top: clamp(40px, 9vh, 96px); font-size: clamp(80px, 9.6vw, 136px); }
+  .p-sub { font-size: 19px; margin-top: 18px; }
+  .p-side { margin-top: 44px; grid-template-columns: 84px minmax(0, 260px); gap: 18px; padding-top: 16px; }
+  .p-side img { width: 84px; }
+  .p-txt { font-size: 14px; } .p-txt b { font-size: 15px; }
+  .cta { padding: 14px 24px; }
+
+  .lead { grid-template-columns: 220px minmax(0, 1fr); align-items: baseline; padding-block: 64px 20px; }
+  .lead p { font-size: 22px; }
+  .strip { grid-auto-flow: row; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-columns: auto; overflow: visible; gap: 18px; }
+  .sec-head { padding-block: 48px 20px; }
+  .sec-head h2 { font-size: 40px; }
+  .plates { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+
+  .dish { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 64px; align-items: start; }
+  .dish-l { position: sticky; top: 70px; }
+  .dish-r > .sec-head:first-child { padding-top: 46px; }
+  .dish-r .flow { max-width: 560px; }
+
+  .veil { align-items: center; }
+  .sheet { border: 1px solid var(--ink); }
+  .sheet.full { max-width: 760px; height: min(100%, 860px); border: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .poster h1, .p-side, .p-cta { animation: rise .6s ease; }
+  .p-side { animation-delay: .12s; } .p-cta { animation-delay: .2s; }
+  @keyframes rise { from { transform: translateY(8px); } to { transform: none; } }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="bar">
+    <button class="brand" type="button" data-go="home">Что поесть?</button>
+    <span class="spaced">2026</span>
+  </header>
+  <main id="main"></main>
+  <footer class="foot">
+    <span class="spaced">Что поесть · 2026</span>
+    <p>Прототип на пяти блюдах. Калории и цены примерные, это не медицинская рекомендация. При аллергии читай состав на упаковке.</p>
+  </footer>
+</div>
+<nav class="dock" aria-label="Разделы"><div class="dock-in">
+  <button type="button" data-go="home" id="nav-home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/></svg>Главная</button>
+  <button type="button" data-go="menu" id="nav-menu"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg>Меню</button>
+  <button type="button" data-go="shop" id="nav-shop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span id="shopLabel">Покупки</span></button>
+  <button type="button" data-open="settings" id="nav-set"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Настройки</button>
+</div></nav>
+<div class="veil" id="veil" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const DATA = {"DISHES": {"omelet": {"name": "Омлет из 3 яиц со шпинатом и сыром, тост", "time": 10, "kcal": 480, "p": 32, "f": 30, "c": 20, "price": 95, "tools": ["Глубокая миска", "Вилка", "Сковорода с крышкой", "Лопатка"], "ing": [{"n": "Яйца", "q": "3 шт", "a": ["eggs"]}, {"n": "Шпинат (свежий или замороженный)", "q": "горсть"}, {"n": "Сыр твёрдый", "q": "30 г", "a": ["milk"], "alt": {"n": "Зелень (укроп, лук) вместо сыра", "q": "горсть"}}, {"n": "Хлеб цельнозерновой", "q": "1 ломтик", "a": ["gluten"], "alt": {"n": "Хлебцы рисовые", "q": "2 шт"}}, {"n": "Растительное масло", "q": "1 ч. л."}, {"n": "Соль", "q": "щепотка"}], "steps": ["Разбей 3 яйца в глубокую миску: стукни яйцом о край миски и большими пальцами раздвинь скорлупу. Если в миску попал кусочек скорлупы, достань его ложкой.", "Добавь щепотку соли (сколько берётся двумя пальцами) и взбивай вилкой 30 секунд, пока белок и желток не смешаются в одну жёлтую массу.", "Поставь сковороду на средний огонь, налей 1 чайную ложку масла и подожди 1 минуту, пока масло не начнёт блестеть.", "Положи шпинат и помешивай лопаткой 1 минуту. Он сильно уменьшится, так и должно быть.", {"i": 2, "t": "Вылей яйца на сковороду и больше не мешай. Нарежь сыр мелкими кусочками и посыпь сверху.", "alt": "Вылей яйца на сковороду и больше не мешай. Мелко нарежь зелень и посыпь сверху."}, "Убавь огонь до слабого, накрой крышкой и жди 3–4 минуты. Омлет готов, когда сверху не осталось жидкого яйца.", {"i": 3, "t": "Пока готовится омлет, подсуши хлеб в тостере или на сухой сковороде по 1 минуте с каждой стороны. Лопаткой переложи омлет на тарелку.", "alt": "Лопаткой переложи омлет на тарелку. Рядом положи 2 рисовых хлебца, подсушивать их не нужно."}], "tip": "Если снизу пригорает, а сверху ещё жидко, значит огонь слишком сильный. В следующий раз сделай слабее."}, "buckwheat": {"name": "Гречка с куриной грудкой и свежим огурцом", "time": 25, "kcal": 620, "p": 48, "f": 12, "c": 75, "price": 140, "tools": ["Кастрюля с крышкой", "Сито или миска", "Сковорода", "Нож и доска", "Лопатка"], "ing": [{"n": "Гречка", "q": "90 г (½ стакана)"}, {"n": "Вода для гречки", "q": "1 стакан"}, {"n": "Куриная грудка", "q": "150 г"}, {"n": "Огурец", "q": "1 шт"}, {"n": "Растительное масло", "q": "1 ч. л."}, {"n": "Соль, перец", "q": "по вкусу"}], "steps": ["Отмерь полстакана гречки и высыпь в сито или миску. Залей холодной водой, перемешай рукой и слей воду. Так смываются пыль и мелкий мусор.", "Пересыпь гречку в кастрюлю. Налей воды в 2 раза больше, чем гречки: на полстакана гречки нужен 1 стакан воды. Добавь ⅓ чайной ложки соли.", "Поставь кастрюлю на сильный огонь. Когда вода закипит (появятся большие пузыри), убавь огонь до самого слабого и накрой крышкой.", "Вари 15 минут и не открывай крышку. Потом выключи огонь и оставь ещё на 5 минут, чтобы гречка дошла.", "Пока варится гречка: помой куриную грудку, промокни бумажным полотенцем и нарежь кубиками примерно 2 см. После сырой курицы обязательно помой руки и доску с мылом.", "Разогрей сковороду с 1 чайной ложкой масла на среднем огне. Выложи курицу, посоли и поперчи. Жарь 7–8 минут, переворачивая лопаткой. Разрежь самый большой кусочек: внутри не должно быть розового.", "Помой огурец и нарежь кружочками. Выложи в тарелку гречку, курицу и огурец."], "tip": "Если вода выкипела, а гречка ещё твёрдая, добавь 2–3 ложки горячей воды и подержи под крышкой ещё 5 минут."}, "soup": {"name": "Куриный суп с вермишелью", "time": 50, "kcal": 330, "p": 26, "f": 8, "c": 38, "price": 80, "tools": ["Кастрюля 2–3 л", "Шумовка", "Нож и доска", "Половник"], "ing": [{"n": "Курица (бедро или голень)", "q": "120 г"}, {"n": "Вода", "q": "500 мл"}, {"n": "Картофель", "q": "1 шт"}, {"n": "Морковь и лук", "q": "по ⅓ шт"}, {"n": "Вермишель", "q": "30 г", "a": ["gluten"], "alt": {"n": "Рисовая лапша тонкая", "q": "30 г"}}, {"n": "Соль, лавровый лист", "q": "½ ч. л. + 1 лист"}, {"n": "Зелень", "q": "по желанию"}], "steps": ["Положи курицу в кастрюлю, залей 500 мл холодной воды и поставь на сильный огонь.", "Когда закипит, на поверхности появится серая пена. Собери её шумовкой: так бульон будет прозрачным.", "Убавь огонь до слабого, положи лавровый лист и вари 30 минут под приоткрытой крышкой.", "Пока варится бульон, почисти картофель, морковь и лук. Картофель нарежь кубиками, морковь кружочками, лук мелко.", "Достань курицу на тарелку, а в бульон положи картофель, морковь и лук. Посоли ½ чайной ложки и вари 10 минут.", "Пока варятся овощи, сними мясо с костей вилкой, разбери на кусочки и верни в суп.", {"i": 4, "t": "Всыпь вермишель, помешай и вари ещё 3–4 минуты, пока она не станет мягкой.", "alt": "Всыпь рисовую лапшу, помешай и вари 2–3 минуты: она готовится быстрее и легко разваривается."}, "Выключи огонь, посыпь рубленой зеленью и дай супу постоять 5 минут."], "tip": "Суп удобнее варить сразу на 3–4 порции: просто умножь все продукты, время почти не изменится."}, "pasta": {"name": "Паста с индейкой в томатном соусе", "time": 25, "kcal": 640, "p": 45, "f": 14, "c": 80, "price": 160, "tools": ["Большая кастрюля", "Дуршлаг", "Сковорода", "Лопатка", "Нож и доска"], "ing": [{"n": "Паста (макароны)", "q": "90 г", "a": ["gluten"], "alt": {"n": "Паста из гречневой или рисовой муки", "q": "90 г"}}, {"n": "Фарш индейки", "q": "150 г"}, {"n": "Томаты в собственном соку", "q": "200 г (½ банки)"}, {"n": "Чеснок", "q": "1 зубчик"}, {"n": "Растительное масло", "q": "1 ч. л."}, {"n": "Соль", "q": "1 ч. л. в воду + ⅓ ч. л. в соус"}, {"n": "Базилик", "q": "по желанию"}], "steps": ["Налей в большую кастрюлю 2 литра воды, накрой крышкой и поставь на сильный огонь. Вода закипит примерно через 10 минут.", "Пока вода греется, очисти зубчик чеснока от шелухи и мелко нарежь ножом.", "Разогрей сковороду с 1 чайной ложкой масла на среднем огне. Выложи фарш и разбивай его лопаткой на мелкие кусочки. Жарь 6–7 минут, пока весь фарш не станет светлым, без розового.", "Добавь чеснок, томаты из банки (крупные помидоры разомни лопаткой) и ⅓ чайной ложки соли. Убавь огонь до слабого и туши 10 минут, иногда помешивая.", {"i": 0, "t": "Когда вода в кастрюле закипит, положи 1 чайную ложку соли и всыпь пасту. Сразу перемешай, чтобы она не слиплась. Вари столько минут, сколько написано на пачке (обычно 8–11).", "alt": "Когда вода в кастрюле закипит, положи 1 чайную ложку соли и всыпь гречневую или рисовую пасту. Сразу перемешай: такая паста слипается сильнее обычной. Вари по времени с пачки (обычно 5–8 минут) и попробуй за минуту до конца, она быстро разваривается."}, "Поставь дуршлаг в раковину и вылей в него пасту вместе с водой. Осторожно: пар очень горячий, держи лицо подальше.", "Переложи пасту в сковороду с соусом и перемешай. Сверху можно положить листики базилика."], "tip": "Чтобы проверить, готова ли паста, достань одну макаронину и попробуй: она должна быть мягкой, но не разваливаться."}, "shawarma": {"name": "Домашняя шаурма с курицей", "time": 25, "kcal": 600, "p": 38, "f": 26, "c": 55, "price": 160, "buy": {"where": "в шаурмичной или через доставку", "price": "250–400 ₽", "kcal": "600–900 ккал"}, "tools": ["Сковорода", "Лопатка", "Нож и доска", "Миска для соуса"], "ing": [{"n": "Лаваш тонкий", "q": "1 шт", "a": ["gluten"]}, {"n": "Куриное бедро без кожи", "q": "150 г"}, {"n": "Капуста белокочанная", "q": "80 г"}, {"n": "Огурец и помидор", "q": "по ½ шт"}, {"n": "Соус: сметана 15% и чеснок", "q": "2 ст. л. + 1 зубчик", "a": ["milk"], "alt": {"n": "Соус: кетчуп и чеснок", "q": "2 ст. л. + 1 зубчик"}}, {"n": "Растительное масло", "q": "1 ч. л."}, {"n": "Соль, паприка", "q": "по ⅓ ч. л."}], "steps": ["Нарежь курицу полосками шириной в палец. Посыпь солью и паприкой и перемешай руками. После сырой курицы помой руки с мылом.", "Разогрей сковороду с 1 чайной ложкой масла на среднем огне. Жарь курицу 8–10 минут, переворачивая, пока внутри не останется розового.", "Пока жарится курица, тонко нашинкуй капусту, а огурец и помидор нарежь тонкими полосками.", {"i": 4, "t": "Сделай соус: смешай в миске 2 столовые ложки сметаны, мелко натёртый зубчик чеснока и щепотку соли.", "alt": "Сделай соус: смешай в миске 2 столовые ложки кетчупа и мелко натёртый зубчик чеснока."}, "Расстели лаваш на столе и намажь соусом середину, оставив края пустыми.", "Выложи полоской ближе к нижнему краю курицу, капусту, огурец и помидор.", "Подверни нижний край на начинку, затем загни боковые края внутрь и плотно сверни рулетом.", "Обжарь шаурму на сухой сковороде по 1–2 минуты с каждой стороны, чтобы лаваш стал хрустящим."], "tip": "Не клади слишком много начинки, иначе лаваш порвётся. Если порвался, заверни во второй лаваш."}}, "ALLERGENS": {"milk": "молоко", "eggs": "яйца", "gluten": "глютен (пшеница, овёс)", "fish": "рыба", "nuts": "орехи", "honey": "мёд", "berries": "ягоды (клубника и др.)", "citrus": "цитрусовые"}, "FLOWS": {"omelet": {"branches": [{"items": [0, 5], "acts": [{"t": "Взбить вилкой", "s": 2}]}, {"items": [1, 4], "acts": [{"t": "Обжарить шпинат 1 мин", "s": 4}]}], "join": {"t": "Вылить яйца на сковороду", "s": 5}, "after": [{"t": "Посыпать сыром", "i": 2, "alt": "Посыпать зеленью", "s": 5}, {"t": "Под крышкой 3–4 мин", "s": 6}, {"t": "Подсушить хлеб", "i": 3, "alt": "Положить хлебцы", "s": 7}]}, "buckwheat": {"branches": [{"items": [0, 1], "acts": [{"t": "Промыть", "s": 1}, {"t": "Варить 15 мин под крышкой", "s": 4}]}, {"items": [2, 4, 5], "acts": [{"t": "Нарезать кубиками", "s": 5}, {"t": "Жарить 7–8 мин", "s": 6}]}, {"items": [3], "acts": [{"t": "Нарезать кружочками", "s": 7}]}], "join": {"t": "Выложить на тарелку", "s": 7}, "after": []}, "soup": {"branches": [{"items": [0, 1, 5], "acts": [{"t": "Снять пену", "s": 2}, {"t": "Варить бульон 30 мин", "s": 3}]}, {"items": [2, 3], "acts": [{"t": "Почистить и нарезать", "s": 4}]}], "join": {"t": "Овощи в бульон, 10 мин", "s": 5}, "after": [{"t": "Мясо снять с костей и вернуть", "s": 6}, {"t": "Вермишель, 3–4 мин", "i": 4, "alt": "Рисовая лапша, 2–3 мин", "s": 7}, {"t": "Посыпать зеленью", "s": 8}]}, "pasta": {"branches": [{"items": [0, 5], "acts": [{"t": "Варить 8–11 мин", "i": 0, "alt": "Варить 5–8 мин", "s": 5}, {"t": "Слить воду", "s": 6}]}, {"items": [1, 3, 4, 2], "acts": [{"t": "Нарезать чеснок", "s": 2}, {"t": "Жарить фарш 6–7 мин", "s": 3}, {"t": "Томаты, тушить 10 мин", "s": 4}]}], "join": {"t": "Смешать пасту с соусом", "s": 7}, "after": [{"t": "Украсить базиликом", "s": 7}]}, "shawarma": {"branches": [{"items": [1, 5, 6], "acts": [{"t": "Нарезать полосками", "s": 1}, {"t": "Жарить 8–10 мин", "s": 2}]}, {"items": [2, 3], "acts": [{"t": "Нашинковать и нарезать", "s": 3}]}, {"items": [4], "acts": [{"t": "Смешать соус", "s": 4}]}], "join": {"t": "Выложить на лаваш", "s": 6}, "after": [{"t": "Свернуть рулетом", "s": 7}, {"t": "Обжарить по 1–2 мин", "s": 8}]}}};
+const { DISHES, ALLERGENS, FLOWS } = DATA;
+const ORDER = ["omelet", "buckwheat", "soup", "pasta", "shawarma"];
+const META = {
+  omelet:    { title: "Омлет со шпинатом и сыром", cat: "Завтрак", diff: 2 },
+  buckwheat: { title: "Гречка с курицей",          cat: "Обед",    diff: 2 },
+  soup:      { title: "Куриный суп с вермишелью",  cat: "Обед",    diff: 3 },
+  pasta:     { title: "Паста с индейкой",          cat: "Ужин",    diff: 2 },
+  shawarma:  { title: "Домашняя шаурма",           cat: "Ужин",    diff: 3 }
+};
+// photos for the illustrated example: ingredient pictures by index, one picture per step, optional per-action overrides
+const VIS = {
+  buckwheat: {
+    ing: ["img/bw/i-buckwheat.jpg", "img/bw/i-water.jpg", "img/bw/i-chicken.jpg", "img/bw/i-cucumber.jpg", "img/bw/i-oil.jpg", "img/bw/i-salt.jpg"],
+    steps: ["img/bw/s1.jpg", "img/bw/s2.jpg", "img/bw/s3.jpg", "img/bw/s4.jpg", "img/bw/s5.jpg", "img/bw/s6.jpg", "img/buckwheat.jpg"],
+    acts: { "Нарезать кружочками": "img/bw/cut.jpg" }
+  }
+};
+const SECTIONS = [["Мясо и рыба", /кур|фарш|говядин|рыб/i], ["Молочное и яйца", /яйц|сыр|сметан|молок|йогурт/i], ["Крупы и хлеб", /гречк|паста|вермишел|лапша|хлеб|лаваш|хлебц/i],
+  ["Овощи и зелень", /картоф|морков|лук|огур|помидор|капуст|шпинат|зелень|базилик|чеснок|томат|кетчуп/i]];
+const BASE = "Специи и базовое";
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("chtoPoestStudio:" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("chtoPoestStudio:" + k, JSON.stringify(v)); } catch {} }
+};
+const state = { people: store.get("people", 1), allergies: store.get("allergies", []), ov: store.get("ov", {}), cart: store.get("cart", []), checked: store.get("checked", {}), steps: {}, view: "home", dish: null };
+const $ = (s) => document.querySelector(s);
+const fmt = (n) => n.toLocaleString("ru-RU");
+const names = (keys) => keys.map(k => ALLERGENS[k]).join(", ");
+const no = (id) => String(ORDER.indexOf(id) + 1).padStart(2, "0");
+const plural = (n, a, b, c) => { const m = n % 100, k = n % 10; return m > 10 && m < 20 ? c : k === 1 ? a : k > 1 && k < 5 ? b : c; };
+const shortName = (n) => n.split(/ \(| вместо|, /)[0].replace(/^Соус: /, "Соус: ");
+
+/* ingredients, swaps, quantities */
+function resolveIng(id) {
+  return DISHES[id].ing.map((g, i) => {
+    const hit = (g.a || []).filter(a => state.allergies.includes(a));
+    const forced = hit.length > 0 && !!g.alt, manual = !!(state.ov[id] && state.ov[id][i]) && !!g.alt;
+    return { ...g, i, hit, forced, manual, swapped: forced || manual, blocked: hit.length > 0 && !g.alt };
+  });
+}
+const FRAC = { "½": 0.5, "⅓": 1 / 3, "¼": 0.25, "⅔": 2 / 3 };
+const UNIT_ABBR = [["стакан", "стак."], ["ломтик", "ломт."], ["зубчик", "зубч."], ["лист", "лист."], ["банк", "банк."]];
+const QTY_RE = /^(по )?(\d+(?:[.,]\d+)?|[½⅓¼⅔])\s*(г|мл|кг|л|шт|ст\. л\.|ч\. л\.|стакан[а-я]*|ломтик[а-я]*|зубчик[а-я]*|лист[а-я]*|банк[а-я]*)(?![а-я])/;
+function parseQty(q) {
+  const m = q.match(QTY_RE);
+  if (!m) return null;
+  const ab = UNIT_ABBR.find(u => m[3].startsWith(u[0]));
+  return { pre: m[1] || "", val: FRAC[m[2]] ?? parseFloat(m[2].replace(",", ".")), unit: ab ? ab[1] : m[3], rest: q.slice(m[0].length) };
+}
+function fmtNum(v, unit) {
+  if (unit === "г" || unit === "мл") return String(Math.max(5, Math.round(v / 5) * 5));
+  if (unit === "шт" && v >= 1) return String(Math.round(v));
+  v = Math.max(0.5, Math.round(v * 2) / 2);
+  return v % 1 ? `${Math.floor(v) || ""}½` : String(v);
+}
+function scaleQty(q, k) {
+  if (k === 1) return q;
+  const p = parseQty(q);
+  if (!p) return /вкус|желани|щепот/.test(q) ? q : `${q} × ${k}`;
+  return `${p.pre}${fmtNum(p.val * k, p.unit)} ${p.unit}${p.rest.replace(/\s*\([^)]*\)/, "")}`;
+}
+const stepText = (s, ings) => typeof s === "string" ? { text: s, swapped: false } : ings[s.i].swapped ? { text: s.alt, swapped: true } : { text: s.t, swapped: false };
+function stepSeconds(text) {
+  const m = text.match(/(\d+)(?:[–-]\d+)?\s*(мин|секунд|час)/);
+  return m ? parseInt(m[1], 10) * (m[2] === "час" ? 3600 : m[2] === "мин" ? 60 : 1) : 0;
+}
+const fmtDur = (sec) => sec >= 3600 ? `${sec / 3600} ч` : sec >= 60 ? `${sec / 60} мин` : `${sec} сек`;
+
+/* shared pieces */
+const slider = (label, v) => `<div class="sl"><span>${label}</span><i style="--v:${Math.max(0.03, Math.min(v, 0.97)).toFixed(2)}"></i></div>`;
+function specHtml(id) {
+  const d = DISHES[id], m = META[id], ings = resolveIng(id);
+  return `<div class="spec">
+    <h3>${m.title}</h3>
+    <ul>${ings.map(g => `<li>${shortName((g.swapped ? g.alt : g).n)}</li>`).join("")}</ul>
+    <div class="sls">${slider("Время", d.time / 60)}${slider("Сытность", d.kcal / 800)}${slider("Белок", d.p / 55)}${slider("Сложность", m.diff / 5)}</div>
+    <footer><span>${m.cat} · ${d.time} мин</span><b>${fmt(d.price * state.people)} ₽</b></footer>
+  </div>`;
+}
+const plateHtml = (id, i, tag = "button") => `<${tag} class="plate ${i % 2 ? "r" : ""}" ${tag === "button" ? `type="button" data-dish="${id}" aria-label="${META[id].title}: открыть рецепт"` : ""}>
+    <img src="img/${id}.jpg" alt="${META[id].title}" loading="${i ? "lazy" : "eager"}">${specHtml(id)}
+    <span class="no spaced">№ ${no(id)}</span>${tag === "button" ? `<span class="open">открыть рецепт</span>` : ""}
+  </${tag}>`;
+
+/* views */
+function homeHtml() {
+  const pick = ORDER[new Date().getDay() % ORDER.length], d = DISHES[pick];
+  return `<section class="poster" aria-labelledby="heroTitle">
+      <img src="img/hero.jpg" alt="Суп и шаурма на округлых камнях">
+      <div class="p-over">
+        <div class="p-top"><span class="mono">Кулинарный помощник<br>в Telegram</span><span class="pill">меню · 0${ORDER.length}</span></div>
+        <h1 id="heroTitle">Что<br>поесть?</h1>
+        <p class="p-sub">меню на каждый день, шаг за шагом</p>
+        <button class="p-side" type="button" data-dish="${pick}" aria-label="Блюдо дня: ${META[pick].title}">
+          <img src="img/${pick}.jpg" alt="">
+          <span class="p-txt"><b>сегодня</b><span>${META[pick].title.toLowerCase()}, ${d.time} минут, ${d.kcal} ккал</span><em>блюдо дня →</em></span>
+        </button>
+        <div class="p-cta"><button class="cta" type="button" data-go="menu">Смотреть меню</button></div>
+      </div>
+    </section>
+    <section class="lead">
+      <span class="spaced">Как это работает</span>
+      <p>Выбираешь блюдо, получаешь точный состав на нужное число порций и готовишь по шагам с таймером. Продукты сами собираются в список покупок.</p>
+    </section>
+    <div class="strip">${ORDER.map(id => `<button class="tile" type="button" data-dish="${id}"><img src="img/${id}.jpg" alt="" loading="lazy"><b>${META[id].title}</b><span class="mono">№ ${no(id)} · ${DISHES[id].time} мин</span></button>`).join("")}</div>`;
+}
+function menuHtml() {
+  return `<div class="sec-head"><h2>Меню</h2><span class="spaced">${ORDER.length} блюд</span></div>
+    <div class="plates">${ORDER.map((id, i) => plateHtml(id, i)).join("")}</div>`;
+}
+function flowHtml(id, ings, done) {
+  const f = FLOWS[id], n = f.branches.length, vis = VIS[id] || {};
+  const pic = (a) => (vis.acts && vis.acts[a.t]) || (vis.steps && vis.steps[a.s - 1]);
+  const node = (a, cls = "", img = pic(a)) => `<button class="fn ${cls} ${done[a.s - 1] ? "done" : ""}" type="button" data-goto="${a.s - 1}" aria-label="Шаг ${a.s}: открыть описание">
+      <span class="ph">${img ? `<img src="${img}" alt="" loading="lazy">` : String(a.s).padStart(2, "0")}</span>
+      <span class="cap">${a.i !== undefined && ings[a.i].swapped ? a.alt : a.t}</span><small>шаг ${String(a.s).padStart(2, "0")}</small></button>`;
+  const line = `<span class="vline"></span>`;
+  const cols = f.branches.map(b => `<div class="fcol">
+      ${vis.ing ? `<div class="srcs">${b.items.map(i => `<img src="${vis.ing[i]}" alt="" loading="lazy">`).join("")}</div>` : ""}
+      <span class="src">${b.items.map(i => shortName((ings[i].swapped ? ings[i].alt : ings[i]).n).toLowerCase()).join(", ")}</span>
+      ${b.acts.map(a => line + node(a)).join("")}</div>`).join("");
+  const merge = f.branches.map((_, k) => { const x = (2 * k + 1) / (2 * n) * 300, tx = 150 + (k - (n - 1) / 2) * 16; return `<path d="M${x} 2 C ${x} 26, ${tx} 12, ${tx} 36"/><path d="M${tx - 4} 31 L${tx} 37 L${tx + 4} 31"/>`; }).join("");
+  const last = !f.after.length;
+  return `<div class="flow">
+    <div class="fcols" style="grid-template-columns:repeat(${n},minmax(0,1fr))">${cols}</div>
+    <svg class="fmerge" viewBox="0 0 300 40" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${merge}</svg>
+    ${node(f.join, last ? "big" : "", last ? `img/${id}.jpg` : pic(f.join))}
+    ${f.after.map((a, i) => line + (i === f.after.length - 1 ? node(a, "big", `img/${id}.jpg`) : node(a))).join("")}
+    <span class="fend">готово</span>
+  </div>`;
+}
+function dishHtml(id) {
+  const d = DISHES[id], ings = resolveIng(id), done = state.steps[id] || {}, k = state.people, inCart = state.cart.includes(id);
+  const blocked = ings.filter(g => g.blocked);
+  const rows = ings.map(g => {
+    const s = g.swapped ? g.alt : g;
+    let al = "";
+    if (g.blocked) al = `<span class="al">аллерген: ${names(g.hit)}. заменить нечем, блюдо тебе не подходит</span>`;
+    else if (g.forced) al = `<span class="al ok">заменено: аллергия на ${names(g.hit)}</span>`;
+    else if (g.manual) al = `<span class="al ok">вместо «${shortName(g.n).toLowerCase()}» <button class="link" type="button" data-ing="${g.i}">вернуть</button></span>`;
+    else if ((g.a || []).length) al = `<span class="al">аллерген: ${names(g.a)}${g.alt ? ` <button class="link" type="button" data-ing="${g.i}">заменить</button>` : ""}</span>`;
+    return `<div class="row"><span>${s.n}</span><span class="q">${scaleQty(s.q, k)}</span>${al}</div>`;
+  }).join("");
+  return `<div class="dish"><div class="dish-l"><button class="back" type="button" data-go="menu">← меню</button>
+    ${plateHtml(id, ORDER.indexOf(id), "div")}
+    <div class="controls">
+      <div class="stepper"><span class="mono">порции</span><div><button type="button" data-people="-1" aria-label="Меньше порций" ${k <= 1 ? "disabled" : ""}>−</button><b aria-live="polite">${k}</b><button type="button" data-people="1" aria-label="Больше порций" ${k >= 6 ? "disabled" : ""}>+</button></div></div>
+      <button class="cta solid" type="button" data-cook="${id}">Готовить по шагам</button>
+      <button class="cta" type="button" data-cart="${id}" aria-pressed="${inCart}">${inCart ? "В покупках ✓" : "В покупки"}</button>
+    </div>
+    ${blocked.length ? `<p class="mono" style="color:var(--dot);margin:14px 0 0">В этом блюде есть продукт, который тебе нельзя: ${names([...new Set(blocked.flatMap(g => g.hit))])}.</p>` : ""}
+    </div><div class="dish-r">
+    <div class="sec-head"><h2>Состав</h2><span class="spaced">на ${k} ${plural(k, "порцию", "порции", "порций")}</span></div>
+    <div class="rows">${rows}</div>
+    <div class="sec-head"><h2>Схема</h2><span class="spaced">что с чем делаем</span></div>
+    ${flowHtml(id, ings, done)}
+    <div class="sec-head"><h2>Шаги</h2><span class="spaced">${Object.values(done).filter(Boolean).length} / ${d.steps.length}</span></div>
+    ${k > 1 ? `<p class="mono" style="margin:0 0 6px;color:var(--muted)">В тексте шагов количество на 1 порцию. Продукты бери по составу выше.</p>` : ""}
+    <div class="steps">${d.steps.map((s, i) => {
+      const st = stepText(s, ings), sec = stepSeconds(st.text);
+      const img = VIS[id] && VIS[id].steps && VIS[id].steps[i];
+      const body = `<span class="n">${String(i + 1).padStart(2, "0")}</span><span class="t">${st.text}<br>${sec ? `<span class="tag">таймер ${fmtDur(sec)}</span>` : ""}${st.swapped ? `<span class="tag">под замену</span>` : ""}</span>`;
+      return `<button class="step ${img ? "pic" : ""}" type="button" data-step="${i}" aria-pressed="${!!done[i]}">${img ? `<img src="${img}" alt="" loading="lazy"><span class="body">${body}</span>` : body}</button>`;
+    }).join("")}</div>
+    <div class="sec-head"><h2>Заметки</h2></div>
+    <div class="notes">
+      <p><span class="k mono">посуда</span>${d.tools.join(", ")}</p>
+      ${d.tip ? `<p><span class="k mono">совет</span>${d.tip}</p>` : ""}
+      ${d.buy ? `<p><span class="k mono">если лень готовить</span>Можно купить готовое ${d.buy.where}: примерно ${d.buy.price}, ${d.buy.kcal}. Дома выходит около ${d.price} ₽ за порцию.</p>` : ""}
+      <p><span class="k mono">на порцию</span>${d.kcal} ккал · белки ${d.p} г · жиры ${d.f} г · углеводы ${d.c} г</p>
+    </div></div></div>`;
+}
+function shopData() {
+  const map = new Map();
+  state.cart.filter(id => DISHES[id]).forEach(id => resolveIng(id).forEach(g => {
+    const s = g.swapped ? g.alt : g;
+    if (/^вода/i.test(s.n)) return;
+    const sec = (SECTIONS.find(x => x[1].test(g.n)) || [BASE])[0], p = sec === BASE ? null : parseQty(s.q), key = s.n + "|" + (p ? p.unit : "");
+    const it = map.get(key) || { key, n: s.n, unit: p ? p.unit : "", val: 0, times: 0, sec };
+    if (p) it.val += p.val * state.people; it.times++;
+    map.set(key, it);
+  }));
+  return [...SECTIONS.map(x => x[0]), BASE].map(sec => ({ sec, items: [...map.values()].filter(x => x.sec === sec).sort((a, b) => a.n.localeCompare(b.n, "ru")) })).filter(g => g.items.length);
+}
+const qtyLabel = (it) => it.sec === BASE ? "" : !it.unit ? "" : it.unit === "г" && it.val >= 1000 ? `${fmt(Math.round(it.val / 100) / 10)} кг` : `${fmtNum(it.val, it.unit)} ${it.unit}`;
+function shopHtml() {
+  const cart = state.cart.filter(id => DISHES[id]);
+  if (!cart.length) return `<div class="narrow"><div class="sec-head"><h2>Покупки</h2></div><div class="empty"><p>Список пока пуст. Открой блюдо и нажми «В покупки»: продукты соберутся здесь и сложатся между собой.</p><button class="cta" type="button" data-go="menu">Смотреть меню</button></div></div>`;
+  const groups = shopData(), total = cart.reduce((s, id) => s + DISHES[id].price, 0) * state.people;
+  let count = 0, done = 0;
+  const body = groups.map(g => `<h3>${g.sec}</h3>${g.items.map(it => { const on = !!state.checked[it.key]; count++; if (on) done++; return `<label class="item ${on ? "done" : ""}"><input type="checkbox" data-check="${it.key.replace(/"/g, "&quot;")}" ${on ? "checked" : ""}><span>${it.n}</span><span class="q">${qtyLabel(it)}</span></label>`; }).join("")}`).join("");
+  return `<div class="narrow"><div class="sec-head"><h2>Покупки</h2><span class="spaced">на ${state.people} ${plural(state.people, "порцию", "порции", "порций")}</span></div>
+    <div class="chips">${cart.map(id => `<button class="chip" type="button" data-cart="${id}" aria-label="Убрать: ${META[id].title}">${META[id].title} ×</button>`).join("")}</div>
+    <div class="receipt">${body}<footer><span class="mono">куплено ${done} из ${count}</span><b>~${fmt(total)} ₽</b></footer></div>
+    <div class="controls"><button class="cta" type="button" data-copy="1">Скопировать список</button><button class="cta" type="button" data-go="menu">Добавить блюдо</button></div></div>`;
+}
+function render() {
+  const v = state.view;
+  $("#main").innerHTML = v === "menu" ? menuHtml() : v === "shop" ? shopHtml() : v === "dish" && DISHES[state.dish] ? dishHtml(state.dish) : homeHtml();
+  $("#nav-home").setAttribute("aria-current", v === "home" ? "page" : "false");
+  $("#nav-menu").setAttribute("aria-current", v === "menu" || v === "dish" ? "page" : "false");
+  $("#nav-shop").setAttribute("aria-current", v === "shop" ? "page" : "false");
+  $("#shopLabel").textContent = `Покупки${state.cart.length ? ` · ${state.cart.length}` : ""}`;
+}
+function go(view, dish) {
+  state.view = view; state.dish = dish || null;
+  render(); window.scrollTo({ top: 0 });
+  try { history.replaceState(null, "", "#" + (view === "dish" ? "dish-" + dish : view)); } catch {}
+}
+
+/* overlays: settings and cook mode */
+let ctx = null;
+const timer = { total: 0, left: 0, run: false, h: null };
+let actx = null, wake = null, toastH = null;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastH); toastH = setTimeout(() => { t.hidden = true; }, 2200); }
+function stopTimer() { if (timer.h) clearInterval(timer.h); timer.h = null; timer.run = false; }
+function setTimer(sec) { stopTimer(); timer.total = sec; timer.left = sec; }
+const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+function beep() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.35, 0.7].forEach(t => { const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = 880; o.connect(g); g.connect(actx.destination); g.gain.setValueAtTime(0.25, actx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + t + 0.25); o.start(actx.currentTime + t); o.stop(actx.currentTime + t + 0.26); });
+  } catch {}
+}
+function tick() {
+  timer.left = Math.max(0, timer.left - 1);
+  const el = $("#timerVal");
+  if (el) el.textContent = timer.left ? mmss(timer.left) : "готово";
+  if (!timer.left) { stopTimer(); beep(); if (ctx && ctx.type === "cook") paint("[data-nav='1']"); }
+}
+function settingsHtml() {
+  return `<div class="sheet-top"><h2 id="sheetTitle">Настройки</h2><button class="link" type="button" data-close="1">закрыть</button></div>
+    <div class="stepper"><span class="mono">порции</span><div><button type="button" data-people="-1" aria-label="Меньше порций" ${state.people <= 1 ? "disabled" : ""}>−</button><b>${state.people}</b><button type="button" data-people="1" aria-label="Больше порций" ${state.people >= 6 ? "disabled" : ""}>+</button></div></div>
+    <div style="display:grid;gap:10px"><span class="spaced">Аллергия или не ем</span>
+      <div class="chips">${Object.entries(ALLERGENS).map(([k, n]) => `<button class="chip" type="button" data-allergy="${k}" aria-pressed="${state.allergies.includes(k)}">${n}</button>`).join("")}</div>
+      <p class="mono" style="margin:0;color:var(--muted)">Где продукт можно заменить, заменим в составе и в шагах. Где нельзя, предупредим на странице блюда.</p></div>
+    <button class="cta solid" type="button" data-close="1" style="text-align:center">Готово</button>`;
+}
+function cookHtml() {
+  const { id, i, end } = ctx, d = DISHES[id], ings = resolveIng(id);
+  if (end) return `<div class="sheet-top"><span class="spaced">№ ${no(id)}</span><button class="link" type="button" data-close="1">закрыть</button></div><div class="rule"><i style="width:100%"></i></div>
+    <div class="cook-body"><span class="cook-no">Готово</span><p class="cook-text">${META[id].title}: приятного аппетита.</p></div>
+    <div class="pair"><button class="cta" type="button" data-nav="-1">‹ назад</button><button class="cta solid" type="button" data-close="1">Закрыть</button></div>`;
+  const st = stepText(d.steps[i], ings), last = i === d.steps.length - 1;
+  return `<div class="sheet-top"><span class="spaced" id="sheetTitle">${META[id].title}</span><button class="link" type="button" data-close="1">закрыть</button></div>
+    <div class="rule"><i style="width:${(i + 1) / d.steps.length * 100}%"></i></div>
+    <div class="cook-body">
+      ${VIS[id] && VIS[id].steps && VIS[id].steps[i] ? `<img class="cook-img" src="${VIS[id].steps[i]}" alt="">` : ""}
+      <span class="cook-no">${String(i + 1).padStart(2, "0")}<span class="mono" style="color:var(--muted)"> / ${String(d.steps.length).padStart(2, "0")}</span></span>
+      <p class="cook-text">${st.text}</p>
+      ${state.people > 1 && i === 0 ? `<p class="mono" style="margin:0;color:var(--muted)">Готовим ${state.people} ${plural(state.people, "порцию", "порции", "порций")}: количество в тексте на одну, продукты бери по составу.</p>` : ""}
+      ${timer.total ? `<div class="timer"><span class="timer-val ${timer.left ? "" : "end"}" id="timerVal" aria-live="polite">${timer.left ? mmss(timer.left) : "готово"}</span>
+        <div class="chips"><button class="chip" type="button" data-timer="toggle" aria-pressed="${timer.run}">${timer.run ? "пауза" : timer.left === timer.total ? `запустить таймер на ${fmtDur(timer.total)}` : timer.left ? "продолжить" : "ещё раз"}</button>${timer.left !== timer.total ? `<button class="chip" type="button" data-timer="reset">сбросить</button>` : ""}</div></div>` : ""}
+    </div>
+    <div class="pair"><button class="cta" type="button" data-nav="-1" ${i === 0 ? "disabled" : ""}>‹ назад</button><button class="cta solid" type="button" data-nav="1">${last ? "Готово" : "Дальше ›"}</button></div>`;
+}
+function paint(focusSel) {
+  $("#sheet").className = ctx.type === "cook" ? "sheet full" : "sheet";
+  $("#sheet").innerHTML = ctx.type === "cook" ? cookHtml() : settingsHtml();
+  $("#veil").hidden = false;
+  ((focusSel && $(focusSel)) || $("#sheet button"))?.focus();
+}
+function closeSheet() {
+  stopTimer();
+  try { wake && wake.release(); } catch {} wake = null;
+  $("#veil").hidden = true; ctx = null; render();
+}
+function openCook(id) {
+  ctx = { type: "cook", id, i: 0 };
+  setTimer(stepSeconds(stepText(DISHES[id].steps[0], resolveIng(id)).text));
+  paint("[data-nav='1']");
+  try { navigator.wakeLock && navigator.wakeLock.request("screen").then(w => { wake = w; }).catch(() => {}); } catch {}
+}
+function cookNav(dir) {
+  const d = DISHES[ctx.id];
+  if (ctx.end) { ctx.end = false; return paint("[data-nav='1']"); }
+  if (dir > 0) { state.steps[ctx.id] = state.steps[ctx.id] || {}; state.steps[ctx.id][ctx.i] = true; }
+  if (dir > 0 && ctx.i === d.steps.length - 1) { stopTimer(); ctx.end = true; return paint("[data-close]"); }
+  ctx.i = Math.max(0, Math.min(d.steps.length - 1, ctx.i + dir));
+  setTimer(stepSeconds(stepText(d.steps[ctx.i], resolveIng(ctx.id)).text));
+  $("#sheet").scrollTop = 0; paint("[data-nav='1']");
+}
+function copyList() {
+  const text = "Список покупок:\n\n" + shopData().map(g => `${g.sec}:\n` + g.items.map(it => `  ☐ ${it.n}${qtyLabel(it) ? " — " + qtyLabel(it) : ""}`).join("\n")).join("\n\n") + "\n\n— из «Что поесть?»";
+  const fail = () => toast("Не получилось скопировать автоматически");
+  try { navigator.clipboard.writeText(text).then(() => toast("Список скопирован"), fail); } catch { fail(); }
+}
+const toggleIn = (arr, v) => arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v];
+
+document.addEventListener("click", (e) => {
+  if (e.target === $("#veil")) { if (ctx && ctx.type !== "cook") closeSheet(); return; }
+  const t = e.target.closest("button");
+  if (!t || t.disabled) return;
+  const ds = t.dataset;
+  if (ds.close) return closeSheet();
+  if (ds.go) return go(ds.go);
+  if (ds.dish) return go("dish", ds.dish);
+  if (ds.open === "settings") { ctx = { type: "settings" }; return paint(); }
+  if (ds.people) { state.people = Math.max(1, Math.min(6, state.people + +ds.people)); store.set("people", state.people); render(); if (ctx) paint(`[data-people="${ds.people}"]`); else $(`#main [data-people="${ds.people}"]`)?.focus(); return; }
+  if (ds.allergy) { state.allergies = toggleIn(state.allergies, ds.allergy); store.set("allergies", state.allergies); render(); return paint(`[data-allergy="${ds.allergy}"]`); }
+  if (ds.cart) { state.cart = toggleIn(state.cart, ds.cart); store.set("cart", state.cart); toast(state.cart.includes(ds.cart) ? "Добавлено в покупки" : "Убрано из покупок"); render(); $(`#main [data-cart="${ds.cart}"]`)?.focus(); return; }
+  if (ds.copy) return copyList();
+  if (ds.cook) return openCook(ds.cook);
+  if (ds.nav && ctx && ctx.type === "cook") return cookNav(+ds.nav);
+  if (ds.timer && ctx && ctx.type === "cook") {
+    if (ds.timer === "reset") setTimer(timer.total);
+    else if (timer.run) stopTimer();
+    else { if (!timer.left) timer.left = timer.total; timer.run = true; timer.h = setInterval(tick, 1000); try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); } catch {} }
+    return paint("[data-timer='toggle']");
+  }
+  if (state.view !== "dish") return;
+  const id = state.dish;
+  if (ds.ing !== undefined) { state.ov[id] = state.ov[id] || {}; state.ov[id][ds.ing] = !state.ov[id][ds.ing]; store.set("ov", state.ov); render(); $(`[data-ing="${ds.ing}"]`)?.focus(); return; }
+  if (ds.step !== undefined) { state.steps[id] = state.steps[id] || {}; state.steps[id][ds.step] = !state.steps[id][ds.step]; render(); $(`[data-step="${ds.step}"]`)?.focus(); return; }
+  if (ds.goto !== undefined) { const el = $(`[data-step="${ds.goto}"]`); el?.scrollIntoView?.({ block: "center", behavior: "smooth" }); el?.focus({ preventScroll: true }); return; }
+});
+document.addEventListener("change", (e) => { const k = e.target.dataset && e.target.dataset.check; if (k) { state.checked[k] = e.target.checked; store.set("checked", state.checked); render(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && ctx) closeSheet(); });
+function route() {
+  const h = (location.hash || "").slice(1);
+  if (h.startsWith("dish-") && DISHES[h.slice(5)]) { state.view = "dish"; state.dish = h.slice(5); }
+  else state.view = ["menu", "shop"].includes(h) ? h : "home";
+  render();
+}
+window.addEventListener && window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
