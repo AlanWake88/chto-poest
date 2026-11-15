@@ -301,6 +301,23 @@ html.tg .dish-l { padding-top: 14px; }
 .link { font-size: 12px; }
 .foot p { font-size: 13px; }
 
+/* ---- colour: section photographs, tiles and coloured chips ---- */
+.banner { margin: 0 0 18px; background: var(--card); border: 1px solid var(--line); }
+.banner img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: var(--stone); }
+.bcard { border-top: 3px solid var(--sc); padding: 11px 13px 13px; display: grid; gap: 5px; }
+.bcard .spaced { color: var(--sc); }
+.bcard b { font: 700 20px/1.15 var(--font-serif); text-wrap: balance; }
+.bcard > span:last-child:not(.spaced) { font-size: 15px; line-height: 1.45; }
+.chip[aria-pressed="true"] { background: var(--sc, var(--ink)); border-color: var(--sc, var(--ink)); color: #FFFFFF; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-top: 24px; }
+.tile2 { position: relative; display: grid; text-align: left; background: var(--card); border: 1px solid var(--line); overflow: hidden; }
+.tile2 img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.tile2 > span { display: grid; gap: 3px; padding: 9px 10px 11px; border-top: 3px solid var(--sc); }
+.tile2 b { font: 700 16px/1.15 var(--font-serif); }
+.tile2 i { font-style: normal; color: var(--muted); font-size: 11px; }
+.sheet .banner { margin: 0; }
+.sheet .banner img { aspect-ratio: 16 / 9; }
+
 @media (min-width: 620px) {
   .wrap { max-width: 760px; }
   .plates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
@@ -310,6 +327,14 @@ html.tg .dish-l { padding-top: 14px; }
   .narrow, .flow { max-width: 620px; margin-inline: auto; }
 }
 @media (min-width: 960px) {
+  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .banner { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+  .banner img { aspect-ratio: auto; height: 100%; min-height: 300px; }
+  .bcard { border-top: 0; border-left: 3px solid var(--sc); align-content: end; padding: 24px; }
+  .bcard b { font-size: 26px; }
+  .narrow .banner { display: block; }
+  .narrow .banner img { aspect-ratio: 2 / 1; min-height: 0; }
+  .narrow .bcard { border-left: 0; border-top: 3px solid var(--sc); }
   .wrap { max-width: 1200px; padding-left: max(40px, env(safe-area-inset-left, 0px)); padding-right: max(40px, env(safe-area-inset-right, 0px)); padding-bottom: 72px; }
   .bar { padding-block: 20px 18px; }
   .bar #stampLink { display: none; }
@@ -379,7 +404,7 @@ html.tg .dish-l { padding-top: 14px; }
 
 <script>
 /* Telegram keeps an old copy of the page for a while. Ask the server which build is current and reload once if ours is stale. */
-const BUILD = "15";
+const BUILD = "16";
 fetch("version.txt?" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.text() : BUILD).then(t => {
   const v = t.trim();
   if (v && v !== BUILD && !location.search.includes("b=" + v)) location.replace(location.pathname + "?b=" + v + location.hash);
@@ -2232,6 +2257,21 @@ function norms() {
   return { p: g.p, f, c: Math.round((g.kcal - g.p * 4 - f * 9) / 4) };
 }
 
+/* section photographs with a colour of their own */
+const SECTION = {
+  week:    { img: "week",    c: "#3F67A0", eyebrow: "неделя", title: "Семь дней без вопроса «что приготовить»", line: "Меню собрано под твою цель и бюджет. Не нравится блюдо — замени." },
+  recipes: { img: "recipes", c: "#C4572E", eyebrow: "рецепты", title: "Всё, что умеет домашняя кухня", line: "Каждый рецепт расписан по шагам так, чтобы получилось с первого раза." },
+  fridge:  { img: "fridge",  c: "#2F8C7A", eyebrow: "холодильник", title: "Готовим из того, что уже есть", line: "Отметь продукты, а я покажу, что из них получится и чего не хватает." },
+  student: { img: "student", c: "#C2362F", eyebrow: "общежитие", title: "Без плиты и духовки", line: "Только микроволновка или мультиварка, недорогие продукты и минимум посуды." },
+  drinks:  { img: "drinks",  c: "#A33A5C", eyebrow: "напитки", title: "Что налить к ужину", line: "К каждому напитку подсказка, с чем он хорош. Есть варианты без алкоголя." },
+  spices:  { img: "spices",  c: "#B57A08", eyebrow: "приправы", title: "Щепотка, которая меняет вкус", line: "Что это, сколько класть и в какие блюда." },
+  shop:    { img: "shop",    c: "#4F7A2A", eyebrow: "покупки", title: "Список, который собирается сам", line: "Продукты из всех блюд складываются, а ты только ставишь галочки." },
+  nut:     { img: "nut",     c: "#6E54A3", eyebrow: "белки · жиры · углеводы", title: "Чем добрать до нормы", line: "" }
+};
+const banner = (k) => { const b = SECTION[k]; return `<figure class="banner" style="--sc:${b.c}"><img src="img/sec/${b.img}.jpg" alt="">
+    <figcaption class="bcard"><span class="spaced">${b.eyebrow}</span><b>${b.title}</b>${b.line ? `<span>${b.line}</span>` : ""}</figcaption></figure>`; };
+const recSection = () => state.q ? "recipes" : ["fridge", "student", "drinks", "spices"].includes(state.cat) ? state.cat : "recipes";
+
 /* shared pieces */
 const slider = (label, v) => `<div class="sl"><span>${label}</span><i style="--v:${Math.max(0.03, Math.min(v, 0.97)).toFixed(2)}"></i></div>`;
 function specHtml(id) {
@@ -2288,12 +2328,18 @@ function homeHtml() {
       ${dr ? `<div class="rowwrap"><div class="rowd static"><span class="th"><span class="noph">${dr.n[0]}</span></span><span class="rb"><span class="mono up">напиток к ужину${day.mood ? " · " + noEmoji(MOODS[day.mood]).toLowerCase() : ""}</span><b>${dr.n}</b><span class="mono">${dr.q} · ${dr.kcal} ккал${dr.adult ? " · 18+" : ""}</span>${dr.adult ? `<span class="mono">без алкоголя: ${DRINKS[dr.soft].n.toLowerCase()}</span>` : ""}</span></div><button class="link" type="button" data-drink="1">другой</button></div>` : ""}
     </div>
     <p class="mono muted" style="margin:10px 0 0">${g.note}</p>
-    <div class="controls" style="padding-top:22px"><button class="cta" type="button" data-open="roul">Не знаю, чего хочу</button><button class="cta" type="button" data-fridge-open="1">Что в холодильнике</button></div>`;
+    <div class="tiles">
+      <button class="tile2" type="button" data-open="roul" style="--sc:${SECTION.recipes.c}"><img src="img/sec/recipes.jpg" alt="" loading="lazy"><span><b>Не знаю, чего хочу</b><i class="mono">случайное блюдо под настроение</i></span></button>
+      <button class="tile2" type="button" data-fridge-open="1" style="--sc:${SECTION.fridge.c}"><img src="img/sec/fridge.jpg" alt="" loading="lazy"><span><b>Что в холодильнике</b><i class="mono">приготовить из того, что есть</i></span></button>
+      <button class="tile2" type="button" data-student="1" style="--sc:${SECTION.student.c}"><img src="img/sec/student.jpg" alt="" loading="lazy"><span><b>Студентам</b><i class="mono">микроволновка и мультиварка</i></span></button>
+      <button class="tile2" type="button" data-cat-open="drinks" style="--sc:${SECTION.drinks.c}"><img src="img/sec/drinks.jpg" alt="" loading="lazy"><span><b>Напитки</b><i class="mono">что налить к ужину</i></span></button>
+    </div>`;
 }
 function weekHtml() {
   const end = new Date(monday); end.setDate(monday.getDate() + 6);
   const cost = state.weekCost * state.people, lim = state.budget * state.people;
   return `<div class="narrow"><div class="sec-head"><h2>Неделя</h2><span class="spaced">${monday.getDate()} – ${end.getDate()} ${MONTHS[end.getMonth()]}</span></div>
+    ${banner("week")}
     <div class="receipt" style="margin-top:0"><h3>бюджет на ${portions(state.people).replace("порцию", "человека").replace(/порци[ийя]/, "человек")}</h3>
       <div class="bud"><b>~${fmt(cost)} ₽</b><span class="mono">${state.budget ? (cost <= lim ? `укладываемся в ${fmt(lim)} ₽${state.level < 1 ? ", блюда подешевле" : ""}` : `в ${fmt(lim)} ₽ не укладываемся`) : "бюджет не задан"}</span></div>
       ${state.budget ? `<div class="rule" style="margin-bottom:12px"><i style="width:${Math.min(cost / lim, 1) * 100}%"></i></div>` : ""}
@@ -2335,7 +2381,7 @@ function recListHtml() {
       .map(d => `<div class="rowd static"><span class="th"><span class="noph">${d.n[0]}</span></span><span class="rb"><b>${d.n}</b><span class="mono">${d.q} · ${d.kcal} ккал${d.adult ? " · 18+" : ""}</span><span>${d.hint}</span>${d.adult ? `<span class="mono">без алкоголя: ${DRINKS[d.soft].n.toLowerCase()}</span>` : ""}</span></div>`).join("")}</div>
       <p class="mono muted">Алкоголь только для взрослых и в меру.</p>`;
   const ids = cat.quick ? [...new Set(CATS.flatMap(c => c.items || []))].filter(id => DISHES[id].time <= cat.quick).sort((a, b) => DISHES[a].time - DISHES[b].time) : cat.items;
-  return (cat.note ? `<p class="lede">${cat.note}</p>` : "") + rows(ids, "В этом разделе нет блюд под твои ограничения.");
+  return (cat.note && !SECTION[cat.key] ? `<p class="lede">${cat.note}</p>` : "") + rows(ids, "В этом разделе нет блюд под твои ограничения.");
 }
 function spiceRow(k, used) {
   const s = SPICES[k], inD = used ? Object.keys(SPICE_MAP).filter(id => SPICE_MAP[id].includes(k)).map(title) : [];
@@ -2343,8 +2389,9 @@ function spiceRow(k, used) {
 }
 function recipesHtml() {
   return `<div class="sec-head"><h2>Рецепты</h2><span class="spaced">${Object.keys(DISHES).length} блюд</span></div>
+    ${banner(recSection())}
     <input class="search" id="recSearch" type="search" placeholder="поиск: суп, курица, гречка" aria-label="Поиск по рецептам" autocomplete="off" value="${state.q.replace(/"/g, "&quot;")}">
-    <div class="cats" role="group" aria-label="Разделы">${R_CATS().map(c => `<button class="chip" type="button" data-cat="${c.key}" aria-pressed="${c.key === state.cat && !state.q}">${c.label.toLowerCase()}</button>`).join("")}</div>
+    <div class="cats" role="group" aria-label="Разделы">${R_CATS().map(c => `<button class="chip" type="button" data-cat="${c.key}" aria-pressed="${c.key === state.cat && !state.q}" style="--sc:${(SECTION[c.key] || SECTION.recipes).c}">${c.label.toLowerCase()}</button>`).join("")}</div>
     <div id="recList">${recListHtml()}</div>`;
 }
 function flowHtml(id, ings, done) {
@@ -2428,7 +2475,7 @@ const qtyLabel = (it) => it.sec === "base" || !it.unit ? "" : it.unit === "г" &
 function shopHtml() {
   const cart = state.cart.filter(id => DISHES[id]), week = state.shopMode === "week";
   const seg = `<div class="seg" role="group" aria-label="Какой список"><button type="button" data-shopmode="week" aria-pressed="${week}">меню на неделю</button><button type="button" data-shopmode="cart" aria-pressed="${!week}">мои блюда${cart.length ? " · " + cart.length : ""}</button></div>`;
-  const head = `<div class="narrow"><div class="sec-head"><h2>Покупки</h2><span class="spaced">на ${portions(state.people).replace("порцию", "человека").replace(/порци[ийя]/, "человек")}</span></div>${seg}`;
+  const head = `<div class="narrow"><div class="sec-head"><h2>Покупки</h2><span class="spaced">на ${portions(state.people).replace("порцию", "человека").replace(/порци[ийя]/, "человек")}</span></div>${banner("shop")}${seg}`;
   if (!week && !cart.length) return `${head}<div class="empty" style="margin-top:16px"><p>Пока пусто. Открой блюдо и нажми «В покупки»: продукты соберутся здесь и сложатся между собой.</p><button class="cta" type="button" data-go="recipes">Открыть рецепты</button></div></div>`;
   const groups = shopData(), total = (week ? state.weekCost : cart.reduce((s, id) => s + DISHES[id].price, 0)) * state.people;
   let count = 0, done = 0;
@@ -2507,7 +2554,7 @@ function settingsHtml() {
 function nutHtml() {
   const key = NUTRIENTS[state.nut] ? state.nut : "p", meta = NUTRIENTS[key], nm = norms(), t = totals(todayDishes()), have = t[key], need = nm[key], gap = need - have;
   const list = meta.items.filter(([, , , a = []]) => !a.some(x => state.allergies.includes(x))).sort((a, b) => b[1] - a[1]), max = Math.max(...list.map(x => x[1]), 1);
-  return `${sheetTop("Чем добрать")}
+  return `${sheetTop("Чем добрать")}${banner("nut")}
     <div class="seg" role="group" aria-label="Что смотрим">${Object.entries(NUTRIENTS).map(([k, m]) => `<button type="button" data-nut="${k}" aria-pressed="${k === key}">${m.label.toLowerCase()}</button>`).join("")}</div>
     <div class="receipt" style="margin-top:0"><h3>норма на день</h3><div class="bud"><b>~${need} г</b><span class="mono">${have} г в меню сегодня</span></div>
       <div class="rule" style="margin-bottom:10px"><i style="width:${Math.min(have / need, 1) * 100}%"></i></div>
@@ -2614,6 +2661,7 @@ document.addEventListener("click", (e) => {
   if (ds.open === "roul") { ctx = { type: "roul", mood: "any", id: null }; spin(); return paint(); }
   if (ds.open) return openSheet(ds.open);
   if (t.id === "stampLink") return openSheet("stamps");
+  if (ds.student || ds.catOpen) { state.cat = ds.catOpen || "student"; state.q = ""; store.set("cat", state.cat); return go("recipes"); }
   if (ds.fridgeOpen) { state.cat = "fridge"; state.q = ""; store.set("cat", state.cat); return go("recipes"); }
   if (ds.cat) { state.cat = ds.cat; state.q = ""; store.set("cat", state.cat); render(); $(`[data-cat="${ds.cat}"]`)?.focus(); return; }
   if (ds.fridge) { state.fridge = ds.fridge === "clear" ? [] : toggleIn(state.fridge, ds.fridge); store.set("fridge", state.fridge); $("#recList").innerHTML = recListHtml(); $(`[data-fridge="${ds.fridge}"]`)?.focus(); return; }
