@@ -353,6 +353,30 @@ html.tg .dish-l { padding-top: 14px; }
 .veil:not([hidden]) ~ .tbar { bottom: calc(86px + env(safe-area-inset-bottom, 0px) + var(--tg-bottom, 0px)); }
 .cook-no .tag { font: 400 11px/1 var(--font-mono); vertical-align: middle; margin: 0 0 0 10px; }
 
+/* recipes hub, care pages */
+.hub-g { padding-top: 22px; }
+.hub-h { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 12px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 1px solid var(--ink); margin-bottom: 12px; }
+.hub-h h3 { margin: 0; font: 600 22px/1 var(--font-display); text-transform: uppercase; letter-spacing: -.01em; }
+.hub { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.hub-g.care .hub { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.hub-g.care .tile2 b { font-size: 14px; }
+.care-steps { display: grid; gap: 0; border-top: 1px solid var(--hair); }
+.cstep { display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--hair); }
+.cstep .n { font: 400 28px/1 var(--font-serif); color: var(--sc, var(--dot)); }
+.cstep b { font: 700 18px/1.2 var(--font-serif); }
+.cstep p { margin: 4px 0 0; font-size: 16px; line-height: 1.5; }
+.care-box { margin-top: 16px; border: 1px solid var(--line); background: var(--card); padding: 12px 14px; border-top: 3px solid #2F8C7A; }
+.care-box.no { border-top-color: #B57A08; }
+.care-box.doc { border-top-color: #C2362F; }
+.care-box.doc .spaced { color: #C2362F; }
+.care-box ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 5px; font-size: 16px; line-height: 1.4; }
+.care-cta { margin-top: 12px; width: 100%; display: grid; grid-template-columns: 120px minmax(0, 1fr); text-align: left; background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--sc); overflow: hidden; }
+.care-cta img { width: 100%; height: 100%; object-fit: cover; min-height: 120px; }
+.care-cta > span { display: grid; gap: 5px; padding: 12px 14px; align-content: center; }
+.care-cta b { font: 700 19px/1.15 var(--font-serif); }
+.care-cta i { font-style: normal; font-size: 14px; line-height: 1.4; }
+.care-cta em { font-style: normal; color: var(--sc); }
+
 @media (min-width: 620px) {
   .wrap { max-width: 760px; }
   .plates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
@@ -362,9 +386,11 @@ html.tg .dish-l { padding-top: 14px; }
   .narrow, .flow { max-width: 620px; margin-inline: auto; }
 }
 @media (min-width: 960px) {
+  .hub { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .hub-g.care .hub { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .tbar { bottom: 16px; }
   .gopts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .banner { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
   .banner img { aspect-ratio: auto; height: 100%; min-height: 300px; }
   .bcard { border-top: 0; border-left: 3px solid var(--sc); align-content: end; padding: 24px; }
@@ -442,7 +468,7 @@ html.tg .dish-l { padding-top: 14px; }
 
 <script>
 /* Telegram keeps an old copy of the page for a while. Ask the server which build is current and reload once if ours is stale. */
-const BUILD = "18";
+const BUILD = "19";
 fetch("version.txt?" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.text() : BUILD).then(t => {
   const v = t.trim();
   if (v && v !== BUILD && !location.search.includes("b=" + v)) location.replace(location.pathname + "?b=" + v + location.hash);
@@ -2123,6 +2149,298 @@ Object.assign(SPICE_MAP, {
   mwOmelet: ["salt"], mwPotato: ["salt"], mwOat: ["salt"], mwMac: ["salt"], mcPlov: ["salt", "zira", "garlic"], mcBuck: ["salt"], mcChicken: ["salt", "paprika", "garlic"], mcSoup: ["salt", "bay", "dill"]
 });
 
+/* ================= holiday, beer and movie snacks, care food ================= */
+Object.assign(DISHES, {
+  olivier: { name: "Салат «Оливье»", time: 50, kcal: 450, p: 16, f: 30, c: 28, price: 140,
+    tools: ["Две кастрюли", "Нож и доска", "Большая миска", "Ложка"],
+    ing: [
+      { n: "Картофель", q: "2 шт" },
+      { n: "Морковь", q: "½ шт" },
+      { n: "Яйца", q: "2 шт", a: ["eggs"] },
+      { n: "Колбаса варёная или курица", q: "100 г" },
+      { n: "Огурцы маринованные", q: "2 шт" },
+      { n: "Горошек консервированный", q: "3 ст. л." },
+      { n: "Майонез", q: "2 ст. л.", a: ["eggs"], alt: { n: "Растительное масло с горчицей вместо майонеза", q: "2 ст. л. + ½ ч. л." } },
+      { n: "Соль", q: "по вкусу" }
+    ],
+    steps: [
+      "Положи картофель и морковь целиком, прямо в кожуре, в кастрюлю, залей холодной водой и вари 20–25 минут после закипания. Готовы, когда нож входит легко.",
+      "В другой кастрюле свари яйца вкрутую: 9 минут после закипания, затем залей холодной водой.",
+      "Остуди всё полностью, минимум 30 минут. Тёплые овощи сделают салат водянистым.",
+      "Почисти картофель, морковь и яйца. Нарежь всё кубиками размером с горошину: это главный секрет красивого оливье.",
+      "Так же нарежь колбасу и маринованные огурцы. Огурцы слегка отожми руками от рассола.",
+      "Слей жидкость из горошка и высыпь его в миску ко всему остальному.",
+      { i: 6, t: "Заправь майонезом и посоли по вкусу прямо перед подачей, аккуратно перемешай ложкой.",
+        alt: "Смешай 2 столовые ложки масла с ½ чайной ложки горчицы, заправь салат и посоли перед подачей." }
+    ],
+    tip: "Нарезанный, но не заправленный салат хранится в холодильнике до суток. Заправленный съешь в течение 12 часов." },
+
+  shuba: { name: "Селёдка под шубой", time: 90, kcal: 420, p: 13, f: 30, c: 24, price: 130,
+    tools: ["Две кастрюли", "Тёрка", "Нож и доска", "Плоская тарелка или кольцо"],
+    ing: [
+      { n: "Сельдь слабосолёная (филе)", q: "80 г", a: ["fish"] },
+      { n: "Свёкла", q: "1 шт" },
+      { n: "Картофель", q: "1 шт" },
+      { n: "Морковь", q: "1 шт" },
+      { n: "Яйцо", q: "1 шт", a: ["eggs"] },
+      { n: "Лук", q: "¼ шт" },
+      { n: "Майонез", q: "3 ст. л.", a: ["eggs"] }
+    ],
+    steps: [
+      "Помой свёклу, картофель и морковь щёткой. Свёклу вари отдельно от остальных: она красит воду.",
+      "Свёклу залей холодной водой и вари 50–60 минут после закипания. Картофель и морковь вари в другой кастрюле 20–25 минут, туда же на 9 минут положи яйцо.",
+      "Остуди всё и почисти.",
+      "Сельдь нарежь мелкими кубиками и проверь, чтобы не осталось косточек. Лук нарежь очень мелко.",
+      "Выкладывай слоями на плоскую тарелку или в кольцо: сельдь с луком, затем картофель, натёртый на крупной тёрке, и тонкая сеточка майонеза.",
+      "Дальше натёртая морковь и майонез, затем натёртое яйцо, сверху натёртая свёкла и снова майонез. Разровняй ложкой.",
+      "Убери в холодильник минимум на 2 часа: слои пропитаются, и салат станет нежным."
+    ],
+    tip: "Чтобы руки не окрасились свёклой, три её в перчатках или надень на руку пакет." },
+
+  crabSalad: { name: "Салат с крабовыми палочками", time: 20, kcal: 380, p: 15, f: 26, c: 22, price: 130,
+    tools: ["Ковшик", "Нож и доска", "Миска"],
+    ing: [
+      { n: "Крабовые палочки", q: "100 г", a: ["fish"] },
+      { n: "Кукуруза консервированная", q: "3 ст. л." },
+      { n: "Яйца", q: "2 шт", a: ["eggs"] },
+      { n: "Огурец свежий", q: "½ шт" },
+      { n: "Рис варёный", q: "2 ст. л. (по желанию)" },
+      { n: "Майонез", q: "2 ст. л.", a: ["eggs"], alt: { n: "Растительное масло с горчицей вместо майонеза", q: "2 ст. л. + ½ ч. л." } },
+      { n: "Соль", q: "по вкусу" }
+    ],
+    steps: [
+      "Свари яйца вкрутую: 9 минут после закипания. Остуди в холодной воде и почисти.",
+      "Нарежь крабовые палочки, яйца и огурец небольшими кубиками.",
+      "Слей жидкость из кукурузы и добавь её в миску.",
+      "Если есть варёный рис, добавь 2 столовые ложки: салат станет сытнее.",
+      { i: 5, t: "Заправь майонезом, посоли и перемешай прямо перед подачей.",
+        alt: "Смешай масло с горчицей, заправь салат, посоли и перемешай прямо перед подачей." }
+    ] },
+
+  canapes: { name: "Канапе на шпажках", time: 15, kcal: 300, p: 14, f: 24, c: 7, price: 180,
+    tools: ["Шпажки 8 шт", "Нож и доска", "Плоское блюдо"],
+    ing: [
+      { n: "Сыр твёрдый", q: "60 г", a: ["milk"], alt: { n: "Огурец вместо сыра", q: "½ шт" } },
+      { n: "Колбаса сырокопчёная или ветчина", q: "60 г" },
+      { n: "Виноград без косточек", q: "8 ягод" },
+      { n: "Оливки без косточек", q: "8 шт" },
+      { n: "Помидоры черри", q: "4 шт" }
+    ],
+    steps: [
+      { i: 0, t: "Нарежь сыр кубиками 1,5–2 см, а колбасу тонкими кружочками.", alt: "Нарежь огурец толстыми кружочками 1,5 см, а колбасу тонкими кружочками." },
+      "Помой виноград и черри, черри разрежь пополам.",
+      { i: 0, t: "Собирай на шпажку снизу вверх: кубик сыра (основание, чтобы канапе стояли), сложенный вдвое кружочек колбасы, оливка, сверху виноградина или половинка черри.",
+        alt: "Собирай на шпажку снизу вверх: кружочек огурца (основание, чтобы канапе стояли), сложенный вдвое кружочек колбасы, оливка, сверху виноградина или половинка черри." },
+      "Расставь на плоском блюде стоя. Собирай не раньше чем за час до гостей и держи в холодильнике."
+    ],
+    tip: "Порция на 8 канапе. Для компании из шести человек умножь продукты на 3." },
+
+  stuffedEggs: { name: "Фаршированные яйца", time: 20, kcal: 290, p: 18, f: 22, c: 2, price: 70,
+    tools: ["Ковшик", "Нож", "Миска", "Вилка", "Чайная ложка"],
+    ing: [
+      { n: "Яйца", q: "3 шт", a: ["eggs"] },
+      { n: "Майонез", q: "1 ст. л.", a: ["eggs"] },
+      { n: "Сыр твёрдый", q: "20 г", a: ["milk"], alt: { n: "Зелень вместо сыра", q: "несколько веточек" } },
+      { n: "Чеснок", q: "½ зубчика" },
+      { n: "Соль, перец", q: "по вкусу" },
+      { n: "Укроп", q: "для украшения" }
+    ],
+    steps: [
+      "Свари яйца вкрутую: 9 минут после закипания. Залей холодной водой на 5 минут и почисти.",
+      "Разрежь каждое яйцо вдоль пополам и аккуратно выложи желтки ложкой в миску.",
+      { i: 2, t: "Разомни желтки вилкой, добавь майонез, натёртый сыр, натёртый чеснок, щепотку соли и перца. Перемешай до гладкости.",
+        alt: "Разомни желтки вилкой, добавь майонез, мелко нарубленную зелень, натёртый чеснок, щепотку соли и перца. Перемешай до гладкости." },
+      "Наполни половинки белков начинкой с горкой чайной ложкой.",
+      "Укрась веточкой укропа. Держи в холодильнике и подавай в течение нескольких часов."
+    ] },
+
+  garlicToasts: { name: "Чесночные гренки к пиву", time: 15, kcal: 330, p: 7, f: 15, c: 42, price: 50,
+    tools: ["Сковорода", "Лопатка", "Тёрка", "Миска"],
+    ing: [
+      { n: "Хлеб ржаной (бородинский)", q: "4 ломтика", a: ["gluten"] },
+      { n: "Чеснок", q: "2 зубчика" },
+      { n: "Растительное масло", q: "2 ст. л." },
+      { n: "Соль", q: "щепотка" }
+    ],
+    steps: [
+      "Нарежь хлеб брусочками шириной в палец.",
+      "Очисти чеснок, натри на мелкой тёрке и смешай в миске с маслом и щепоткой соли.",
+      "Разогрей сухую сковороду на среднем огне и выложи брусочки в один слой.",
+      "Жарь 2–3 минуты, переворачивая, пока не появится хрустящая корочка.",
+      "Сними с огня, сразу полей чесночным маслом и перемешай: на горячем хлебе чеснок раскроется, но не сгорит."
+    ],
+    tip: "Если жарить хлеб сразу с чесноком, чеснок сгорит и будет горчить." },
+
+  wings: { name: "Куриные крылышки в духовке", time: 70, kcal: 520, p: 38, f: 34, c: 12, price: 180,
+    tools: ["Духовка", "Противень и пергамент", "Миска", "Нож"],
+    ing: [
+      { n: "Куриные крылышки", q: "400 г" },
+      { n: "Мёд", q: "1 ст. л.", a: ["honey"], alt: { n: "Сахар вместо мёда", q: "1 ч. л." } },
+      { n: "Соевый соус", q: "2 ст. л.", a: ["gluten"], alt: { n: "Соевый соус без глютена (тамари)", q: "2 ст. л." } },
+      { n: "Чеснок", q: "1 зубчик" },
+      { n: "Паприка", q: "½ ч. л." },
+      { n: "Растительное масло", q: "1 ч. л." }
+    ],
+    steps: [
+      "Промокни крылышки бумажным полотенцем. Если они целые, разрежь по суставу на 2 части, а тонкий кончик убери.",
+      { i: 1, t: "Положи в миску 1 столовую ложку мёда, натёртый чеснок, паприку и масло.", alt: "Положи в миску 1 чайную ложку сахара, натёртый чеснок, паприку и масло." },
+      { i: 2, t: "Добавь 2 столовые ложки соевого соуса и перемешай.", alt: "Добавь 2 столовые ложки соевого соуса без глютена и перемешай." },
+      "Обмажь крылышки соусом и оставь на 20 минут. Можно на ночь в холодильнике, так будет ещё вкуснее.",
+      "Включи духовку на 200 °C. Выложи крылышки на противень с пергаментом в один слой.",
+      "Запекай 35–40 минут, перевернув в середине. Готовы, когда корочка тёмно-золотистая, а у кости нет розового."
+    ] },
+
+  popcorn: { name: "Домашний попкорн", time: 10, kcal: 280, p: 5, f: 14, c: 33, price: 40,
+    tools: ["Кастрюля с толстым дном и крышкой", "Большая миска"],
+    ing: [
+      { n: "Зёрна кукурузы для попкорна", q: "50 г" },
+      { n: "Растительное масло", q: "1 ст. л." },
+      { n: "Соль", q: "½ ч. л." },
+      { n: "Сливочное масло", q: "10 г", a: ["milk"], alt: { n: "Без сливочного масла", q: "—" } }
+    ],
+    steps: [
+      "Налей в кастрюлю 1 столовую ложку масла, брось 3 зерна и поставь на средний огонь.",
+      "Когда эти 3 зерна лопнут, масло готово. Высыпь остальные зёрна одним слоем и сразу накрой крышкой.",
+      "Держи кастрюлю за ручки, прижимая крышку, и слегка встряхивай каждые 15 секунд, чтобы зёрна не пригорели.",
+      "Когда хлопки станут редкими, раз в 2–3 секунды, сними с огня. Не открывай крышку ещё 30 секунд: последние зёрна могут выстрелить.",
+      { i: 3, t: "Растопи сливочное масло 20 секунд в микроволновке, полей попкорн, посоли и встряхни.", alt: "Посоли попкорн и встряхни кастрюлю с закрытой крышкой." }
+    ],
+    tip: "Сладкий вариант: вместо соли 1 столовая ложка сахарной пудры. Из зёрен попкорн выходит в 3–4 раза дешевле, чем в кинотеатре." },
+
+  /* ---- забота: когда болеешь или отравился ---- */
+  lightBroth: { name: "Лёгкий куриный бульон", time: 55, kcal: 160, p: 28, f: 3, c: 4, price: 70,
+    tools: ["Кастрюля", "Шумовка", "Вилка"],
+    ing: [
+      { n: "Куриная грудка без кожи", q: "150 г" },
+      { n: "Вода", q: "700 мл" },
+      { n: "Морковь", q: "½ шт" },
+      { n: "Лук", q: "½ шт" },
+      { n: "Соль", q: "щепотка" },
+      { n: "Зелень", q: "по желанию" }
+    ],
+    steps: [
+      "Сними с курицы кожу и срежь видимый жир: в лёгком бульоне жира должно быть минимум.",
+      "Положи курицу в кастрюлю, залей холодной водой и доведи до кипения.",
+      "Слей первую воду, промой курицу и кастрюлю и залей свежими 700 мл воды: так бульон получится чище и легче.",
+      "Добавь целую морковь и половинку лука. Вари на слабом огне 40 минут, снимая пену шумовкой.",
+      "Посоли совсем немного. Достань овощи, а курицу разбери вилкой на мелкие волокна.",
+      "Пей бульон тёплым, не горячим, маленькими глотками. Курицу и ложку риса или вермишели добавь, когда появится аппетит."
+    ],
+    tip: "Хранится в холодильнике до 2 дней. Разогревай только ту порцию, которую выпьешь." },
+
+  riceCongee: { name: "Рисовая каша на воде", time: 35, kcal: 180, p: 4, f: 0, c: 40, price: 15,
+    tools: ["Ковшик с крышкой", "Ложка"],
+    ing: [
+      { n: "Рис круглый", q: "50 г" },
+      { n: "Вода", q: "400 мл" },
+      { n: "Соль", q: "щепотка" }
+    ],
+    steps: [
+      "Промой рис 3–4 раза холодной водой.",
+      "Залей 400 мл воды, посоли щепоткой и доведи до кипения.",
+      "Убавь огонь до самого слабого и вари 25–30 минут под крышкой, помешивая каждые 5 минут, пока рис не разварится в мягкую кашу.",
+      "Если каша слишком загустела, добавь пару ложек горячей воды.",
+      "Ешь тёплой, небольшими порциями. В первые дни без масла, молока и сахара."
+    ] },
+
+  riceWater: { name: "Рисовый отвар", time: 45, kcal: 60, p: 1, f: 0, c: 13, price: 5,
+    tools: ["Ковшик с крышкой", "Сито", "Кружка"],
+    ing: [
+      { n: "Рис", q: "2 ст. л." },
+      { n: "Вода", q: "500 мл" }
+    ],
+    steps: [
+      "Промой рис холодной водой.",
+      "Залей 500 мл воды и вари на слабом огне 40 минут под крышкой.",
+      "Процеди через сито в кружку. Отвар должен быть мутным и слегка густым.",
+      "Пей тёплым по полстакана несколько раз в день. Разваренный рис можно съесть, когда станет легче."
+    ] },
+
+  rusks: { name: "Домашние сухари", time: 25, kcal: 200, p: 6, f: 2, c: 40, price: 10,
+    tools: ["Духовка или сковорода", "Нож и доска", "Противень"],
+    ing: [
+      { n: "Белый хлеб или батон без добавок", q: "3 ломтика", a: ["gluten"] }
+    ],
+    steps: [
+      "Нарежь хлеб кубиками 1,5–2 см. Не бери хлеб со специями, семечками и изюмом.",
+      "Разложи кубики на сухой противень в один слой. Без масла и без соли.",
+      "Подсуши в духовке при 120 °C 20–25 минут, перемешав в середине. Без духовки: на сухой сковороде на слабом огне 10 минут, помешивая.",
+      "Сухари должны стать твёрдыми и светлыми, без тёмной корочки. Остуди и храни в бумажном пакете."
+    ] },
+
+  gingerTea: { name: "Тёплый чай с имбирём и мёдом", time: 10, kcal: 30, p: 0, f: 0, c: 8, price: 30,
+    tools: ["Кружка или заварник", "Нож", "Чайная ложка"],
+    ing: [
+      { n: "Имбирь свежий", q: "кусочек 2 см" },
+      { n: "Кипяток", q: "300 мл" },
+      { n: "Лимон", q: "1 долька", a: ["citrus"], alt: { n: "Без лимона", q: "—" } },
+      { n: "Мёд", q: "1 ч. л.", a: ["honey"], alt: { n: "Без мёда", q: "—" } }
+    ],
+    steps: [
+      "Почисти имбирь: поскобли кожицу краем чайной ложки. Нарежь тонкими кружочками.",
+      "Залей кипятком в кружке и накрой блюдцем на 7–10 минут.",
+      { i: 2, t: "Добавь дольку лимона.", alt: "Лимон не добавляй: чай с имбирём и так согревает." },
+      { i: 3, t: "Подожди, пока чай станет тёплым, и только потом положи мёд: в кипятке он теряет пользу.", alt: "Пей тёплым, маленькими глотками." }
+    ],
+    tip: "Мёд нельзя детям до года. При отравлении имбирь и лимон лучше отложить на пару дней." }
+});
+
+PRODUCTS.find(p => p[0] === "fish")[3] = /горбуш|минта|рыб|лосос|сельд/i;
+PRODUCTS.push(
+  ["crab", "Крабовые палочки", "", /крабов/i, "meat"],
+  ["peas", "Горошек консервированный", "", /горошек/i, "other"],
+  ["corn", "Кукуруза", "", /кукуруз/i, "other"]
+);
+
+CATS.push(
+  { key: "holiday", label: "Праздник", items: ["olivier", "shuba", "crabSalad", "stuffedEggs", "canapes", "cheesePlate", "chickenPotato", "salmon", "bakedApple"] },
+  { key: "beer", label: "К пиву", items: ["garlicToasts", "wings", "cheesePlate", "canapes", "hotdog", "potatoes", "hotsand"] },
+  { key: "movie", label: "Для кино", items: ["popcorn", "garlicToasts", "wings", "cheesePlate", "canapes", "pizza", "vegSticks", "fruitPlate"] },
+  { key: "sick", label: "Если заболел", items: ["lightBroth", "soup", "riceCongee", "mash", "gingerTea", "bakedApple", "oat", "tvorog"] },
+  { key: "poison", label: "Если отравился", items: ["riceWater", "rusks", "riceCongee", "lightBroth", "mash", "bakedApple"] }
+);
+CATS.find(c => c.key === "salads").items.push("olivier", "shuba", "crabSalad");
+CATS.find(c => c.key === "snacks").items.push("canapes", "stuffedEggs", "popcorn");
+CATS.find(c => c.key === "soups").items.push("lightBroth");
+TASTY_POOL.side.push("olivier", "crabSalad");
+TASTY_POOL.snack.push("stuffedEggs", "popcorn");
+Object.assign(SPICE_MAP, { olivier: ["salt"], crabSalad: ["salt"], stuffedEggs: ["salt", "pepper", "garlic", "dill"], garlicToasts: ["garlic", "salt"],
+  wings: ["garlic", "paprika", "soy"], popcorn: ["salt"], lightBroth: ["salt", "dill"], riceCongee: ["salt"] });
+
+// store-bought things for a film night, and what to cook instead
+const MOVIE_BUY = [
+  ["Попкорн", "Готовый или в пакете для микроволновки. Дома из зёрен в 3–4 раза дешевле, рецепт ниже."],
+  ["Чипсы", "Одной большой пачки хватит на двоих. Рядом поставь соус: сметану с зеленью или сальсу."],
+  ["Начос с соусом", "Сырный соус или сальса. Хорошо на компанию: не крошится, как чипсы."],
+  ["Сухарики и гренки", "Можно купить, но домашние чесночные гренки за 15 минут вкуснее и без лишней соли."],
+  ["Орешки и семечки", "Солёный арахис, фисташки, семечки. Внимание аллергикам: орехи один из частых аллергенов."],
+  ["Нарезка", "Сыр, колбаса, виноград и крекеры на доске. Как красиво разложить, есть в рецепте ниже."],
+  ["Сладкое", "Шоколад, мармелад, драже. Немного, чтобы не было тяжело к концу фильма."],
+  ["Напитки", "Кола, лимонад, холодный чай или морс. Для взрослых пиво, лучше безалкогольное, если завтра рано вставать."],
+  ["Если хочется полегче", "Овощные палочки с соусом, фруктовая тарелка, попкорн без масла. Они ниже среди рецептов."]
+];
+const CARE = {
+  sick: {
+    lede: "Когда болеешь, организму нужны силы на выздоровление, а не на переваривание тяжёлой еды. Ешь понемногу и часто, а пить старайся больше обычного: тёплая вода, морс, некрепкий чай, бульон.",
+    steps: [["Пей больше", "1,5–2 литра тёплой жидкости в день маленькими порциями. Тёплое, а не горячее: горячее раздражает горло."],
+      ["Ешь, когда хочется", "Нет аппетита — не заставляй себя. Бульон и кружка морса уже дают силы."],
+      ["Мягко и просто", "Супы, каши, пюре, печёные яблоки, творог. Без жареного и острого."]],
+    buy: ["Морс или компот", "Бананы", "Йогурт без добавок", "Мёд (кроме детей до года)", "Имбирь и лимон", "Сухари или хлебцы"],
+    avoid: ["Жареное и жирное", "Острое, копчёное, маринованное", "Очень горячие напитки", "Алкоголь", "Много сладкого"],
+    doctor: ["Температура выше 38,5 °C держится больше 3 дней", "Трудно дышать, боль в груди", "Сильная слабость, спутанность сознания", "Не получается пить", "Ребёнок, беременная или пожилой человек: обращайтесь к врачу раньше"]
+  },
+  poison: {
+    lede: "При отравлении главное не еда, а вода. Кишечнику нужен покой, поэтому возвращаемся к еде постепенно, шаг за шагом.",
+    steps: [["Первые 4–6 часов", "Не ешь. Пей воду или аптечный раствор для восстановления воды и солей маленькими глотками: по 1–2 столовые ложки каждые 5–10 минут, чтобы не вызвать рвоту."],
+      ["Когда стало легче", "Сухари из белого хлеба, печенье «Мария» или галеты, рисовый отвар, некрепкий чай."],
+      ["На 2–3 день", "Рисовая каша на воде, лёгкий куриный бульон, пюре без молока и масла, банан, печёное яблоко."],
+      ["Через 3–5 дней", "Постепенно возвращай обычную еду, начиная с нежирного: гречка, омлет, отварная курица."]],
+    buy: ["Аптечный раствор для восстановления воды и солей", "Печенье «Мария» или галеты", "Сухари без специй", "Бананы", "Некрепкий чай"],
+    avoid: ["Молоко и молочное в первые дни", "Свежие овощи и фрукты, кроме банана и печёного яблока", "Жареное, жирное, острое", "Кофе, газировка", "Алкоголь", "Сладкое и выпечка"],
+    doctor: ["Кровь в стуле или рвоте", "Температура выше 38,5 °C", "Рвота больше суток или не получается пить", "Сухость во рту, почти нет мочи, головокружение", "Отравление грибами: сразу звони 103 или 112", "Ребёнок, беременная или пожилой человек: к врачу сразу"]
+  }
+};
+
 /* ================= studio logic ================= */
 const PHOTO = ["omelet", "buckwheat", "soup", "pasta", "shawarma"];   // dishes that have a studio photograph
 const META = {
@@ -2181,7 +2499,7 @@ const state = {
   goal: store.get("goal", "keep"), people: store.get("people", 1), budget: store.get("budget", 0),
   allergies: store.get("allergies", []), ov: store.get("ov", {}), choice: store.get("choice", {}), drinkChoice: store.get("drinkChoice", 0),
   cart: store.get("cart", []), favs: store.get("favs", []), fridge: store.get("fridge", []), cooked: store.get("cooked", {}),
-  checked: store.get("checked", {}), shopMode: store.get("shopMode", "week"), cat: store.get("cat", "sig"), nut: store.get("nut", "p"),
+  checked: store.get("checked", {}), shopMode: store.get("shopMode", "week"), cat: "hub", nut: store.get("nut", "p"),
   steps: {}, q: "", level: 1, weekCost: 0, view: "home", dish: null, prev: "recipes"
 };
 const $ = (s) => document.querySelector(s);
@@ -2315,7 +2633,33 @@ SECTION.prep = { img: "week", c: "#3F67A0", eyebrow: "заготовки", title
 SECTION.left = { img: "fridge", c: "#2F8C7A", eyebrow: "остатки", title: "Вчерашнее — в новое блюдо", line: "Гречка, рис, макароны, курица и хлеб, которые жалко выбрасывать." };
 SECTION.season = { img: "shop", c: "#4F7A2A", eyebrow: "сезонное", title: "Что сейчас дешевле и вкуснее", line: "" };
 SECTION.safe = { img: "recipes", c: "#C2362F", eyebrow: "безопасность", title: "Чтобы еда была безопасной", line: "Как понять, что мясо готово, сколько хранить и как разогревать." };
-const recSection = () => state.q ? "recipes" : ["prep", "left", "season", "safe"].includes(state.cat) ? state.cat : ["fridge", "student", "drinks", "spices"].includes(state.cat) ? state.cat : "recipes";
+Object.assign(SECTION, {
+  sig:       { img: "recipes",   c: "#C4572E", eyebrow: "с фото", title: "Рецепты с картинками шагов", line: "Пять блюд, где каждый шаг можно увидеть." },
+  fav:       { img: "recipes",   c: "#C4572E", eyebrow: "избранное", title: "Твои любимые блюда", line: "Открой рецепт и нажми «в избранное», чтобы он появился здесь." },
+  breakfast: { img: "breakfast", c: "#B57A08", eyebrow: "завтраки", title: "Утро, с которого хочется начать день", line: "Яичница, сырники, омлет, каши и тосты с авокадо." },
+  soups:     { img: "soups",     c: "#C4572E", eyebrow: "супы", title: "Тарелка горячего супа", line: "Борщ, щи, куриный, сырный и с фрикадельками." },
+  meat:      { img: "meat",      c: "#9C3B2E", eyebrow: "мясо и птица", title: "Сытно на обед и ужин", line: "Котлеты, шницель, гуляш, плов и курица из духовки." },
+  fish:      { img: "fish",      c: "#2F6FA0", eyebrow: "рыба", title: "Рыба просто и вкусно", line: "Лосось, горбуша, минтай и брускетты." },
+  sides:     { img: "sides",     c: "#7A6A2E", eyebrow: "гарниры", title: "К чему подать мясо и рыбу", line: "Рис, гречка, пюре, макароны и жареная картошка." },
+  salads:    { img: "salads",    c: "#4F7A2A", eyebrow: "салаты", title: "От овощного до «Оливье»", line: "Свежие, сытные и праздничные." },
+  snacks:    { img: "snacks",    c: "#B57A08", eyebrow: "перекусы и закуски", title: "Чем перекусить между делом", line: "Фрукты, творог, нарезка, канапе и бутерброды." },
+  sweet:     { img: "sweet",     c: "#A33A5C", eyebrow: "сладкое", title: "К чаю и для настроения", line: "Печёные яблоки, блины, сырники и коктейль." },
+  quick:     { img: "breakfast", c: "#C4572E", eyebrow: "быстро", title: "Готово за 15 минут", line: "Когда есть хочется прямо сейчас." },
+  fast:      { img: "g-tasty",   c: "#C2362F", eyebrow: "фастфуд", title: "Фастфуд, но домашний", line: "Бургер, шаурма, пицца, хот-дог. Дома дешевле, и понятно, что внутри." },
+  holiday:   { img: "holiday",   c: "#B0302A", eyebrow: "праздник", title: "Праздничный стол без суеты", line: "Оливье, шуба, крабовый салат, канапе, фаршированные яйца и горячее." },
+  beer:      { img: "beer",      c: "#B57A08", eyebrow: "к пиву", title: "Закуски для встречи с друзьями", line: "Гренки, крылышки, нарезка и горячие бутерброды. Алкоголь только 18+." },
+  movie:     { img: "movie",     c: "#3F3A8C", eyebrow: "для кино", title: "Вечер с фильмом", line: "Что купить, а что быстро сделать дома, чтобы было вкусно и не тяжело." },
+  sick:      { img: "sick",      c: "#2F8C7A", eyebrow: "если заболел", title: "Еда, которая бережёт силы", line: "Тёплое, мягкое и лёгкое. Ешь понемногу и пей больше." },
+  poison:    { img: "poison",    c: "#3F67A0", eyebrow: "если отравился", title: "Бережно, шаг за шагом", line: "Сначала вода, потом сухари и рисовый отвар, затем лёгкие супы." }
+});
+const HUB = [
+  ["Забота", "Когда нездоровится, подскажем, что можно есть", ["sick", "poison", "safe"]],
+  ["Каждый день", "", ["breakfast", "soups", "meat", "fish", "sides", "salads", "snacks", "sweet"]],
+  ["Особый случай", "", ["holiday", "beer", "movie", "fast", "drinks"]],
+  ["Удобно", "", ["quick", "student", "prep", "left", "fridge", "season"]],
+  ["Твоё и справочник", "", ["fav", "sig", "spices"]]
+];
+const recSection = () => state.q || state.cat === "hub" ? "recipes" : SECTION[state.cat] ? state.cat : ["prep", "left", "season", "safe"].includes(state.cat) ? state.cat : ["fridge", "student", "drinks", "spices"].includes(state.cat) ? state.cat : "recipes";
 
 /* shared pieces */
 const slider = (label, v) => `<div class="sl"><span>${label}</span><i style="--v:${Math.max(0.03, Math.min(v, 0.97)).toFixed(2)}"></i></div>`;
@@ -2356,7 +2700,7 @@ const planFor = (dayIdx, slotKey) => { const id = (state.plan.days[dayIdx] || {}
 
 // how many days a cooked dish keeps in the fridge in a closed container
 const KEEP = { borsch: 4, shchi: 4, soup: 3, meatballSoup: 3, mcSoup: 3, cheeseSoup: 2, mushroomSoup: 2, plov: 3, mcPlov: 3, gulyash: 3, ezhiki: 3, beef: 3,
-  kotlety: 3, cutlets: 3, chickenPotato: 2, mcChicken: 2, mcBuck: 3, buckwheat: 2, grechkaPlain: 3, pasta: 2, rice: 1, mash: 2, liver: 1 };
+  kotlety: 3, cutlets: 3, chickenPotato: 2, mcChicken: 2, mcBuck: 3, buckwheat: 2, grechkaPlain: 3, pasta: 2, rice: 1, mash: 2, liver: 1, lightBroth: 2 };
 const PREP_NOTE = "Приготовь в выходной и ешь несколько дней: всё из этого раздела спокойно хранится в холодильнике. Умножь продукты кнопкой «порции».";
 
 // what is in season now (by product keys from the fridge list)
@@ -2557,8 +2901,12 @@ function homeHtml() {
       <button class="tile2" type="button" data-open="roul" style="--sc:${SECTION.recipes.c}"><img src="img/sec/recipes.jpg" alt="" loading="lazy"><span><b>Не знаю, чего хочу</b><i class="mono">случайное блюдо под настроение</i></span></button>
       <button class="tile2" type="button" data-fridge-open="1" style="--sc:${SECTION.fridge.c}"><img src="img/sec/fridge.jpg" alt="" loading="lazy"><span><b>Что в холодильнике</b><i class="mono">приготовить из того, что есть</i></span></button>
       <button class="tile2" type="button" data-student="1" style="--sc:${SECTION.student.c}"><img src="img/sec/student.jpg" alt="" loading="lazy"><span><b>Студентам</b><i class="mono">микроволновка и мультиварка</i></span></button>
+      <button class="tile2" type="button" data-cat-open="holiday" style="--sc:${SECTION.holiday.c}"><img src="img/sec/holiday.jpg" alt="" loading="lazy"><span><b>Праздник</b><i class="mono">оливье, шуба, канапе</i></span></button>
+      <button class="tile2" type="button" data-cat-open="movie" style="--sc:${SECTION.movie.c}"><img src="img/sec/movie.jpg" alt="" loading="lazy"><span><b>Для кино</b><i class="mono">что купить и сделать</i></span></button>
       <button class="tile2" type="button" data-cat-open="drinks" style="--sc:${SECTION.drinks.c}"><img src="img/sec/drinks.jpg" alt="" loading="lazy"><span><b>Напитки</b><i class="mono">что налить к ужину</i></span></button>
-    </div>`;
+    </div>
+    <button class="care-cta" type="button" data-cat-open="sick" style="--sc:${SECTION.sick.c}"><img src="img/sec/sick.jpg" alt="" loading="lazy"><span><b>Нездоровится?</b><i>Подскажем, что можно есть, когда болеешь или отравился. Бережно и по шагам.</i><em class="mono">открыть →</em></span></button>
+`;
 }
 function weekHtml() {
   const end = new Date(monday); end.setDate(monday.getDate() + 6);
@@ -2593,6 +2941,17 @@ function recListHtml() {
     return `<p class="mono muted">найдено: ${ids.length}</p>` + rows(ids, "Ничего не нашлось. Попробуй другое слово, например «картошка» или «курица»."); }
   const cat = R_CATS().find(c => c.key === state.cat) || R_CATS()[0];
   if (cat.key === "sig") return `<div class="plates">${PHOTO.map((id, i) => plateHtml(id, i)).join("")}</div>`;
+  if (cat.key === "movie") return `<div class="sec-head" style="padding-top:4px"><h2 style="font-size:22px">Что взять в магазине</h2><span class="spaced">на вечер</span></div><div class="care-steps">${MOVIE_BUY.map(([h, b], k) => `<div class="cstep" style="--sc:${SECTION.movie.c}"><span class="n">${pad2(k + 1)}</span><div><b>${h}</b><p>${b}</p></div></div>`).join("")}</div><div class="sec-head" style="padding-top:26px"><h2 style="font-size:22px">Сделать дома</h2><span class="spaced">быстро</span></div>` + rows(cat.items, "");
+  if (cat.key === "sick" || cat.key === "poison") {
+    const c = CARE[cat.key];
+    return `<p class="lede">${c.lede}</p>
+      <div class="care-steps">${c.steps.map(([h, b], k) => `<div class="cstep"><span class="n">${pad2(k + 1)}</span><div><b>${h}</b><p>${emph(b)}</p></div></div>`).join("")}</div>
+      <div class="sec-head" style="padding-top:26px"><h2 style="font-size:22px">Что приготовить</h2><span class="spaced">мягко и легко</span></div>${rows(cat.items, "")}
+      <div class="care-box"><span class="spaced">что взять в магазине или аптеке</span><ul>${c.buy.map(x => `<li>${x}</li>`).join("")}</ul></div>
+      <div class="care-box no"><span class="spaced">лучше пока не есть</span><ul>${c.avoid.map(x => `<li>${x}</li>`).join("")}</ul></div>
+      <div class="care-box doc"><span class="spaced">когда сразу к врачу</span><ul>${c.doctor.map(x => `<li>${x}</li>`).join("")}</ul></div>
+      <p class="mono muted" style="margin:14px 0 0">Это не замена врачу. Если сомневаешься, позвони в поликлинику или по номеру 103. Выздоравливай!</p>`;
+  }
   if (cat.key === "prep") return `<p class="lede">${PREP_NOTE}</p>` + rows(Object.keys(KEEP).filter(id => DISHES[id]).sort((a, b) => KEEP[b] - KEEP[a]), "Нет блюд под твои ограничения.");
   if (cat.key === "left") return `<p class="lede">Осталось вчерашнее? Вот что из этого быстро сделать. Разогревай до горячего пара и только один раз.</p>` + accordion(LEFTOVERS);
   if (cat.key === "safe") return `<p class="lede">Короткая шпаргалка, чтобы еда была не только вкусной, но и безопасной.</p>` + accordion(SAFETY);
@@ -2620,12 +2979,30 @@ function spiceRow(k, used) {
   const s = SPICES[k], inD = used ? Object.keys(SPICE_MAP).filter(id => SPICE_MAP[id].includes(k)).map(title) : [];
   return `<details class="spice"><summary><b>${s.n}</b><span class="mono">подробнее</span></summary><div><p>${s.what}</p><p><span class="k mono">сколько</span>${s.how}</p><p><span class="k mono">совет</span>${s.tip}</p>${inD.length ? `<p><span class="k mono">в рецептах</span>${inD.slice(0, 4).join(", ")}${inD.length > 4 ? ` и ещё ${inD.length - 4}` : ""}</p>` : ""}</div></details>`;
 }
+function catCount(k) {
+  const c = CATS.find(x => x.key === k);
+  if (k === "fav") return state.favs.length ? `${state.favs.length} ${plural(state.favs.length, "блюдо", "блюда", "блюд")}` : "пока пусто";
+  if (k === "spices") return `${Object.keys(SPICES).length} приправ`;
+  if (k === "drinks") return `${DRINK_POOL.length} напитков`;
+  if (k === "left") return `${LEFTOVERS.length} идей`;
+  if (k === "safe") return "шпаргалка";
+  if (k === "fridge") return "по твоим продуктам";
+  if (k === "sick" || k === "poison") return "что можно и чего нельзя";
+  const ids = k === "sig" ? PHOTO : k === "prep" ? Object.keys(KEEP) : k === "season" ? Object.keys(DISHES).filter(id => seasonal(id).length >= 2)
+    : c && c.quick ? Object.keys(DISHES).filter(id => DISHES[id].time <= c.quick) : c ? c.items : [];
+  const n = ids.filter(id => DISHES[id] && !isExcluded(id)).length;
+  return `${n} ${plural(n, "блюдо", "блюда", "блюд")}`;
+}
+const catLabel = (k) => ((R_CATS().find(c => c.key === k) || {}).label || "").replace(/ · \d+$/, "");
+function hubHtml() {
+  return HUB.map(([name, note, keys], gi) => `<div class="hub-g ${gi === 0 ? "care" : ""}"><div class="hub-h"><h3>${name}</h3>${note ? `<span class="mono muted">${note}</span>` : ""}</div>
+    <div class="hub">${keys.map(k => { const sct = SECTION[k] || SECTION.recipes; return `<button class="tile2" type="button" data-cat="${k}" style="--sc:${sct.c}"><img src="img/sec/${sct.img}.jpg" alt="" loading="lazy"><span><b>${catLabel(k)}</b><i class="mono">${catCount(k)}</i></span></button>`; }).join("")}</div></div>`).join("");
+}
 function recipesHtml() {
+  const hub = state.cat === "hub" && !state.q;
   return `<div class="sec-head"><h2>Рецепты</h2><span class="spaced">${Object.keys(DISHES).length} блюд</span></div>
-    ${banner(recSection())}
-    <input class="search" id="recSearch" type="search" placeholder="поиск: суп, курица, гречка" aria-label="Поиск по рецептам" autocomplete="off" value="${state.q.replace(/"/g, "&quot;")}">
-    <div class="cats" role="group" aria-label="Разделы">${R_CATS().map(c => `<button class="chip" type="button" data-cat="${c.key}" aria-pressed="${c.key === state.cat && !state.q}" style="--sc:${(SECTION[c.key] || SECTION.recipes).c}">${c.label.toLowerCase()}</button>`).join("")}</div>
-    <div id="recList">${recListHtml()}</div>`;
+    <input class="search" id="recSearch" type="search" placeholder="поиск: суп, курица, оливье" aria-label="Поиск по рецептам" autocomplete="off" value="${state.q.replace(/"/g, "&quot;")}">
+    ${hub ? `<div id="recList">${hubHtml()}</div>` : `<button class="back" type="button" data-cat="hub">← все разделы</button>${state.q ? "" : banner(recSection())}<div id="recList">${recListHtml()}</div>`}`;
 }
 function flowHtml(id, ings, done) {
   const f = FLOWS[id], n = f.branches.length, vis = VIS[id] || {};
@@ -2748,7 +3125,10 @@ function fitPoster() {
 }
 function go(view, dish) {
   // tapping the tab you are already on only scrolls up: no rebuild, nothing jumps
-  if (state.view === view && (state.dish || null) === (dish || null)) { window.scrollTo(0, 0); return; }
+  if (state.view === view && (state.dish || null) === (dish || null)) {
+    if (view === "recipes" && (state.cat !== "hub" || state.q)) { state.cat = "hub"; state.q = ""; render(); }
+    window.scrollTo(0, 0); return;
+  }
   if (view === "dish" && state.view !== "dish") state.prev = state.view;
   state.view = view; state.dish = dish || null;
   $("#main").classList.remove("intro");
@@ -2906,7 +3286,7 @@ document.addEventListener("click", (e) => {
   if (t.id === "stampLink") return openSheet("stamps");
   if (ds.student || ds.catOpen) { state.cat = ds.catOpen || "student"; state.q = ""; store.set("cat", state.cat); return go("recipes"); }
   if (ds.fridgeOpen) { state.cat = "fridge"; state.q = ""; store.set("cat", state.cat); return go("recipes"); }
-  if (ds.cat) { state.cat = ds.cat; state.q = ""; store.set("cat", state.cat); render(); $(`[data-cat="${ds.cat}"]`)?.focus(); return; }
+  if (ds.cat) { state.cat = ds.cat; state.q = ""; render(); window.scrollTo(0, 0); return; }
   if (ds.fridge) { state.fridge = ds.fridge === "clear" ? [] : toggleIn(state.fridge, ds.fridge); store.set("fridge", state.fridge); $("#recList").innerHTML = recListHtml(); $(`[data-fridge="${ds.fridge}"]`)?.focus(); return; }
   if (ds.swap) { state.choice[ds.swap] = (state.choice[ds.swap] || 0) + 1; store.set("choice", state.choice); const y = window.scrollY; refresh(); window.scrollTo(0, y); $(`[data-swap="${ds.swap}"]`)?.focus({ preventScroll: true }); return; }
   if (ds.drink) { state.drinkChoice = (state.drinkChoice || 0) + 1; store.set("drinkChoice", state.drinkChoice); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
