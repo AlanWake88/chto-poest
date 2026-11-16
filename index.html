@@ -318,6 +318,18 @@ html.tg .dish-l { padding-top: 14px; }
 .sheet .banner { margin: 0; }
 .sheet .banner img { aspect-ratio: 16 / 9; }
 
+/* settings: goals as photo cards */
+.gopts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.gopt { display: grid; grid-template-rows: auto 1fr; text-align: left; background: var(--card); border: 1px solid var(--line); overflow: hidden; }
+.gopt img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.gopt > span { display: grid; gap: 3px; align-content: start; padding: 9px 10px 11px; border-top: 3px solid transparent; }
+.gopt b { font: 700 16px/1.15 var(--font-serif); }
+.gopt i { font-style: normal; font-size: 12.5px; line-height: 1.35; color: var(--muted); }
+.gopt[aria-pressed="true"] { border-color: var(--sc); box-shadow: inset 0 0 0 1px var(--sc); }
+.gopt[aria-pressed="true"] > span { border-top-color: var(--sc); }
+.gopt[aria-pressed="true"] b { color: var(--sc); }
+.sec-img { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; display: block; }
+
 @media (min-width: 620px) {
   .wrap { max-width: 760px; }
   .plates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
@@ -327,6 +339,7 @@ html.tg .dish-l { padding-top: 14px; }
   .narrow, .flow { max-width: 620px; margin-inline: auto; }
 }
 @media (min-width: 960px) {
+  .gopts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .banner { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
   .banner img { aspect-ratio: auto; height: 100%; min-height: 300px; }
@@ -404,7 +417,7 @@ html.tg .dish-l { padding-top: 14px; }
 
 <script>
 /* Telegram keeps an old copy of the page for a while. Ask the server which build is current and reload once if ours is stale. */
-const BUILD = "16";
+const BUILD = "17";
 fetch("version.txt?" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.text() : BUILD).then(t => {
   const v = t.trim();
   if (v && v !== BUILD && !location.search.includes("b=" + v)) location.replace(location.pathname + "?b=" + v + location.hash);
@@ -2258,6 +2271,7 @@ function norms() {
 }
 
 /* section photographs with a colour of their own */
+const GOAL_C = { lose: "#2F8C7A", keep: "#3F67A0", gain: "#C4572E", tasty: "#A33A5C" };
 const SECTION = {
   week:    { img: "week",    c: "#3F67A0", eyebrow: "неделя", title: "Семь дней без вопроса «что приготовить»", line: "Меню собрано под твою цель и бюджет. Не нравится блюдо — замени." },
   recipes: { img: "recipes", c: "#C4572E", eyebrow: "рецепты", title: "Всё, что умеет домашняя кухня", line: "Каждый рецепт расписан по шагам так, чтобы получилось с первого раза." },
@@ -2542,10 +2556,10 @@ const sheetTop = (t, right = "закрыть") => `<div class="sheet-top"><h2 id
 const BUDGETS = [0, 3000, 4000, 5000];
 function settingsHtml() {
   return `${sheetTop("Настройки")}
-    <div class="blk"><span class="spaced">Цель</span><div class="opts">${Object.entries(GOALS).map(([k, g]) => `<button class="opt" type="button" data-goal="${k}" aria-pressed="${k === state.goal}"><b>${g.label}</b><span>${g.text}</span></button>`).join("")}</div></div>
+    <div class="blk"><span class="spaced">Цель</span><div class="gopts">${Object.entries(GOALS).map(([k, g]) => `<button class="gopt" type="button" data-goal="${k}" aria-pressed="${k === state.goal}" style="--sc:${GOAL_C[k]}"><img src="img/sec/g-${k}.jpg" alt=""><span><b>${noEmoji(g.label)}</b><i>${g.text}</i></span></button>`).join("")}</div></div>
     <div class="stepper"><span class="mono">сколько человек</span><div><button type="button" data-people="-1" aria-label="Меньше" ${state.people <= 1 ? "disabled" : ""}>−</button><b>${state.people}</b><button type="button" data-people="1" aria-label="Больше" ${state.people >= 6 ? "disabled" : ""}>+</button></div></div>
     <div class="blk"><span class="spaced">Бюджет на человека в неделю</span><div class="chips">${BUDGETS.map(b => `<button class="chip" type="button" data-budget="${b}" aria-pressed="${b === state.budget}">${b ? `до ${fmt(b)} ₽` : "без бюджета"}</button>`).join("")}</div></div>
-    <div class="blk"><span class="spaced">Аллергия или не ем</span><div class="chips">${Object.entries(ALLERGENS).map(([k, n]) => `<button class="chip" type="button" data-allergy="${k}" aria-pressed="${state.allergies.includes(k)}">${n}</button>`).join("")}</div>
+    <div class="blk"><span class="spaced">Аллергия или не ем</span><img class="sec-img" src="img/sec/allergy.jpg" alt=""><div class="chips">${Object.entries(ALLERGENS).map(([k, n]) => `<button class="chip" type="button" data-allergy="${k}" aria-pressed="${state.allergies.includes(k)}">${n}</button>`).join("")}</div>
       <p class="mono muted" style="margin:0">Где продукт можно заменить, заменим в составе и в шагах. Где нельзя, уберём блюдо из меню.</p></div>
     <button class="link" type="button" data-open="stamps" style="justify-self:start">мои штампы</button>
     ${tgAtLeast("8.0") && tg.addToHomeScreen ? `<button class="cta" type="button" data-homescreen="1" style="text-align:center">Добавить на экран телефона</button>` : ""}
