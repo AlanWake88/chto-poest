@@ -377,6 +377,17 @@ html.tg .dish-l { padding-top: 14px; }
 .care-cta i { font-style: normal; font-size: 14px; line-height: 1.4; }
 .care-cta em { font-style: normal; color: var(--sc); }
 
+/* week: each dish with nutrients and a swap link, day totals */
+.wrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; border-bottom: 1px solid var(--hair); }
+.wdish { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 2px 10px; padding: 9px 0; text-align: left; width: 100%; }
+.wdish .up { grid-row: span 2; align-self: start; padding-top: 4px; }
+.wn { font-size: 16.5px; line-height: 1.3; }
+.wm { font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 10px; }
+.wm > span { white-space: nowrap; }
+.wtotal { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 2px 10px; padding: 11px 0 12px; border-top: 1px solid var(--ink); margin-top: -1px; }
+.wtotal .up { grid-row: span 3; align-self: start; padding-top: 4px; color: var(--ink); }
+.wtotal b { font: 700 19px/1.1 var(--font-serif); }
+
 @media (min-width: 620px) {
   .wrap { max-width: 760px; }
   .plates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
@@ -468,7 +479,7 @@ html.tg .dish-l { padding-top: 14px; }
 
 <script>
 /* Telegram keeps an old copy of the page for a while. Ask the server which build is current and reload once if ours is stale. */
-const BUILD = "19";
+const BUILD = "20";
 fetch("version.txt?" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.text() : BUILD).then(t => {
   const v = t.trim();
   if (v && v !== BUILD && !location.search.includes("b=" + v)) location.replace(location.pathname + "?b=" + v + location.hash);
@@ -2581,7 +2592,7 @@ function dayDishes(dayIdx, level = state.level) {
     .map((s, si) => {
       const own = planFor(dayIdx, s.key);
       if (own) return { slot: s, id: own, own: true };
-      const ok = allowed(s, level), off = today ? (state.choice[s.key] || 0) : 0;
+      const ok = allowed(s, level), off = today ? (state.choice[s.key] || 0) : ((state.wchoice.days[dayIdx] || {})[s.key] || 0);
       if (!ok.length) return { slot: s, id: null };
       let start = isTasty() ? ok.indexOf(TASTY_WEEK[dayIdx][s.key]) : (today ? 0 : dayIdx + si);
       if (start < 0) start = dayIdx;
@@ -2694,6 +2705,8 @@ SECTIONS.have = "Уже есть дома (по холодильнику)";
 // own dishes put into the week: { week, days: { dayIdx: { slotKey: dishId } } }
 (function () { const p = store.get("plan", null); state.plan = p && p.week === WEEK_KEY ? p : { week: WEEK_KEY, days: {} }; })();
 const savePlan = () => store.set("plan", state.plan);
+// swaps made from the week view, per day: { week, days: { dayIdx: { slotKey: n } } }
+(function () { const w = store.get("wchoice", null); state.wchoice = w && w.week === WEEK_KEY ? w : { week: WEEK_KEY, days: {} }; })();
 const planFor = (dayIdx, slotKey) => { const id = (state.plan.days[dayIdx] || {})[slotKey]; return id && DISHES[id] && !isExcluded(id) ? id : null; };
 // what was eaten today: { day, slots: [] }
 (function () { const a = store.get("ate", null); state.ate = a && a.day === TODAY_KEY ? a : { day: TODAY_KEY, slots: [] }; })();
@@ -2923,9 +2936,14 @@ function weekHtml() {
       if (dr) t.kcal += dr.kcal;
       const date = new Date(monday); date.setDate(monday.getDate() + i);
       return `<div class="receipt day ${i === todayIdx ? "now" : ""}"><div class="day-h"><b>${name}, ${date.getDate()}</b><span class="mono">${i === todayIdx ? "сегодня · " : ""}${fmt(t.kcal)} ккал · ~${fmt(t.price * state.people)} ₽</span></div>
-        ${list.filter(x => x.id).map(({ slot, id, own }) => `<button class="item wk ${own ? "own" : ""}" type="button" data-dish="${id}"><span class="mono up">${slot.label}</span><span>${title(id)}${own ? ` <i class="ownmark">своё</i>` : ""}</span><span class="q">${nutr(id, slot).kcal}</span></button>`).join("")}
+        ${list.filter(x => x.id).map(({ slot, id, own }) => { const n = nutr(id, slot), canSwap = !own && allowed(slot).length > 1;
+          return `<div class="wrow ${own ? "own" : ""}"><button class="wdish" type="button" data-dish="${id}"><span class="mono up">${slot.label}</span>
+            <span class="wn">${title(id)}${own ? ` <i class="ownmark">своё</i>` : ""}</span>
+            <span class="wm mono"><span>${n.kcal} ккал</span><span>Б ${n.p} · Ж ${n.f} · У ${n.c}</span></span></button>
+            ${canSwap ? `<button class="link" type="button" data-wswap="${i}:${slot.key}">заменить</button>` : own ? `<button class="link" type="button" data-unslot="${i}:${slot.key}">убрать</button>` : "<span></span>"}</div>`; }).join("")}
         ${list.some(x => x.own) ? `<div class="item wk"><span></span><button class="link" type="button" data-unplan="${i}" style="justify-self:start">вернуть меню дня</button><span></span></div>` : ""}
-        ${dr ? `<div class="item wk"><span class="mono up">напиток</span><span>${dr.n}${dr.adult ? " · 18+" : ""}</span><span class="q">${mood ? noEmoji(MOODS[mood]).toLowerCase() : ""}</span></div>` : ""}
+        ${dr ? `<div class="item wk"><span class="mono up">напиток</span><span>${dr.n}${dr.adult ? " · 18+" : ""}</span><span class="q">${dr.kcal} ккал</span></div>` : ""}
+        <div class="wtotal"><span class="mono up">итого за день</span><b>${fmt(t.kcal)} ккал</b><span class="mono">Б ${t.p} · Ж ${t.f} · У ${t.c} г · ~${fmt(t.price * state.people)} ₽</span>${mood ? `<span class="mono muted">${noEmoji(MOODS[mood]).toLowerCase()}</span>` : ""}</div>
       </div>`;
     }).join("")}</div>`;
 }
@@ -3295,6 +3313,10 @@ document.addEventListener("click", (e) => {
   if (ds.share) return share(ds.share);
   if (ds.pic) { toast("Готовлю картинку…"); return shareImage(ds.pic); }
   if (ds.eat) { state.ate.slots = toggleIn(state.ate.slots, ds.eat); store.set("ate", state.ate); const y = window.scrollY; render(); window.scrollTo(0, y); $(`[data-eat="${ds.eat}"]`)?.focus({ preventScroll: true }); return; }
+  if (ds.wswap) { const [d, k] = ds.wswap.split(":"); if (+d === todayIdx) { state.choice[k] = (state.choice[k] || 0) + 1; store.set("choice", state.choice); }
+    else { const dd = state.wchoice.days[d] = state.wchoice.days[d] || {}; dd[k] = (dd[k] || 0) + 1; store.set("wchoice", state.wchoice); }
+    const y = window.scrollY; refresh(); window.scrollTo(0, y); $(`[data-wswap="${ds.wswap}"]`)?.focus({ preventScroll: true }); return; }
+  if (ds.unslot) { const [d, k] = ds.unslot.split(":"); if (state.plan.days[d]) delete state.plan.days[d][k]; savePlan(); const y = window.scrollY; refresh(); window.scrollTo(0, y); return; }
   if (ds.unplan !== undefined) { delete state.plan.days[ds.unplan]; savePlan(); const y = window.scrollY; refresh(); window.scrollTo(0, y); return; }
   if (ds.plan) { ctx = { type: "plan", id: ds.plan, day: todayIdx, slot: "dinner" }; return paint(); }
   if (ds.pday !== undefined) { ctx.day = +ds.pday; return paint(`[data-pday="${ds.pday}"]`); }
