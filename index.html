@@ -330,6 +330,29 @@ html.tg .dish-l { padding-top: 14px; }
 .gopt[aria-pressed="true"] b { color: var(--sc); }
 .sec-img { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; display: block; }
 
+/* eaten, own dishes, timers bar, share picture */
+.rowacts { display: grid; justify-items: end; gap: 8px; }
+.eat { border: 1px solid var(--line); border-radius: 99px; padding: 6px 12px; font: 400 12px/1 var(--font-mono); }
+.eat[aria-pressed="true"] { background: var(--ok); border-color: var(--ok); color: #FFFFFF; }
+.rowwrap.eaten .rowd b, .rowwrap.eaten .rowd .mono { opacity: .55; }
+.eatbar { grid-column: 1 / -1; height: 3px; background: var(--hair); display: block; position: relative; }
+.eatbar i { position: absolute; inset: 0 auto 0 0; background: var(--ok); display: block; }
+.ownmark { font: 400 10px/1 var(--font-mono); font-style: normal; letter-spacing: .08em; text-transform: uppercase; color: #FFFFFF; background: #3F67A0; padding: 3px 6px; vertical-align: 2px; }
+.linkset { display: flex; gap: 14px; }
+.item.have span { color: var(--muted); }
+.tag.par { border-color: #3F67A0; color: #3F67A0; }
+.tapnote { margin: 0; text-align: center; opacity: .8; }
+.share-img { width: 100%; max-width: 420px; justify-self: center; border: 1px solid var(--line); }
+.tbar { position: fixed; left: 0; right: 0; bottom: calc(66px + env(safe-area-inset-bottom, 0px) + var(--tg-bottom, 0px)); z-index: 7; display: flex; gap: 8px; overflow-x: auto; padding: 8px max(12px, env(safe-area-inset-left, 0px)); scrollbar-width: none; pointer-events: none; }
+.tbar::-webkit-scrollbar { display: none; }
+.tchip { pointer-events: auto; flex: none; display: flex; align-items: center; gap: 8px; background: var(--ink); color: var(--card); padding: 7px 8px 7px 12px; font: 400 12px/1 var(--font-mono); box-shadow: 0 4px 14px #1E1B1740; }
+.tchip b { font: 500 15px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.tchip.end { background: var(--dot); }
+.tchip button { color: inherit; font-size: 17px; line-height: 1; padding: 0 4px; }
+.veil ~ .tbar { z-index: 30; }
+.veil:not([hidden]) ~ .tbar { bottom: calc(86px + env(safe-area-inset-bottom, 0px) + var(--tg-bottom, 0px)); }
+.cook-no .tag { font: 400 11px/1 var(--font-mono); vertical-align: middle; margin: 0 0 0 10px; }
+
 @media (min-width: 620px) {
   .wrap { max-width: 760px; }
   .plates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
@@ -339,6 +362,7 @@ html.tg .dish-l { padding-top: 14px; }
   .narrow, .flow { max-width: 620px; margin-inline: auto; }
 }
 @media (min-width: 960px) {
+  .tbar { bottom: 16px; }
   .gopts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .banner { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
@@ -414,10 +438,11 @@ html.tg .dish-l { padding-top: 14px; }
 </div></nav>
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
+<div class="tbar" id="tbar" hidden aria-live="polite"></div>
 
 <script>
 /* Telegram keeps an old copy of the page for a while. Ask the server which build is current and reload once if ours is stale. */
-const BUILD = "17";
+const BUILD = "18";
 fetch("version.txt?" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.text() : BUILD).then(t => {
   const v = t.trim();
   if (v && v !== BUILD && !location.search.includes("b=" + v)) location.replace(location.pathname + "?b=" + v + location.hash);
@@ -2236,6 +2261,8 @@ function dayDishes(dayIdx, level = state.level) {
   return activeSlots()
     .filter(s => s.key !== "side" || TASTY_WEEK[dayIdx].side || (today && state.choice.side))
     .map((s, si) => {
+      const own = planFor(dayIdx, s.key);
+      if (own) return { slot: s, id: own, own: true };
       const ok = allowed(s, level), off = today ? (state.choice[s.key] || 0) : 0;
       if (!ok.length) return { slot: s, id: null };
       let start = isTasty() ? ok.indexOf(TASTY_WEEK[dayIdx][s.key]) : (today ? 0 : dayIdx + si);
@@ -2284,7 +2311,11 @@ const SECTION = {
 };
 const banner = (k) => { const b = SECTION[k]; return `<figure class="banner" style="--sc:${b.c}"><img src="img/sec/${b.img}.jpg" alt="">
     <figcaption class="bcard"><span class="spaced">${b.eyebrow}</span><b>${b.title}</b>${b.line ? `<span>${b.line}</span>` : ""}</figcaption></figure>`; };
-const recSection = () => state.q ? "recipes" : ["fridge", "student", "drinks", "spices"].includes(state.cat) ? state.cat : "recipes";
+SECTION.prep = { img: "week", c: "#3F67A0", eyebrow: "заготовки", title: "Готовишь раз, ешь три дня", line: "Супы, тушёное мясо, котлеты и крупы, которые хорошо хранятся." };
+SECTION.left = { img: "fridge", c: "#2F8C7A", eyebrow: "остатки", title: "Вчерашнее — в новое блюдо", line: "Гречка, рис, макароны, курица и хлеб, которые жалко выбрасывать." };
+SECTION.season = { img: "shop", c: "#4F7A2A", eyebrow: "сезонное", title: "Что сейчас дешевле и вкуснее", line: "" };
+SECTION.safe = { img: "recipes", c: "#C2362F", eyebrow: "безопасность", title: "Чтобы еда была безопасной", line: "Как понять, что мясо готово, сколько хранить и как разогревать." };
+const recSection = () => state.q ? "recipes" : ["prep", "left", "season", "safe"].includes(state.cat) ? state.cat : ["fridge", "student", "drinks", "spices"].includes(state.cat) ? state.cat : "recipes";
 
 /* shared pieces */
 const slider = (label, v) => `<div class="sl"><span>${label}</span><i style="--v:${Math.max(0.03, Math.min(v, 0.97)).toFixed(2)}"></i></div>`;
@@ -2310,10 +2341,189 @@ function rowHtml(id, extra = "", slot) {
   </button>`;
 }
 
+
+/* ================= everyday helpers: plan, eaten, prep, leftovers, safety, season ================= */
+const isoDay = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const WEEK_KEY = isoDay(monday), TODAY_KEY = isoDay(now);
+SECTIONS.have = "Уже есть дома (по холодильнику)";
+
+// own dishes put into the week: { week, days: { dayIdx: { slotKey: dishId } } }
+(function () { const p = store.get("plan", null); state.plan = p && p.week === WEEK_KEY ? p : { week: WEEK_KEY, days: {} }; })();
+const savePlan = () => store.set("plan", state.plan);
+const planFor = (dayIdx, slotKey) => { const id = (state.plan.days[dayIdx] || {})[slotKey]; return id && DISHES[id] && !isExcluded(id) ? id : null; };
+// what was eaten today: { day, slots: [] }
+(function () { const a = store.get("ate", null); state.ate = a && a.day === TODAY_KEY ? a : { day: TODAY_KEY, slots: [] }; })();
+
+// how many days a cooked dish keeps in the fridge in a closed container
+const KEEP = { borsch: 4, shchi: 4, soup: 3, meatballSoup: 3, mcSoup: 3, cheeseSoup: 2, mushroomSoup: 2, plov: 3, mcPlov: 3, gulyash: 3, ezhiki: 3, beef: 3,
+  kotlety: 3, cutlets: 3, chickenPotato: 2, mcChicken: 2, mcBuck: 3, buckwheat: 2, grechkaPlain: 3, pasta: 2, rice: 1, mash: 2, liver: 1 };
+const PREP_NOTE = "Приготовь в выходной и ешь несколько дней: всё из этого раздела спокойно хранится в холодильнике. Умножь продукты кнопкой «порции».";
+
+// what is in season now (by product keys from the fridge list)
+const SEASON = [
+  ["cabbage", "beet", "carrot", "potato", "onion", "apple", "orange"],          // Jan
+  ["cabbage", "beet", "carrot", "potato", "onion", "apple", "orange"],
+  ["cabbage", "carrot", "potato", "onion", "apple"],
+  ["cabbage", "greens", "onion"],
+  ["greens", "cucumber", "onion"],
+  ["greens", "cucumber", "tomato", "berries"],
+  ["cucumber", "tomato", "pepper", "berries", "greens"],
+  ["cucumber", "tomato", "pepper", "berries", "greens", "apple", "mushroom"],
+  ["tomato", "pepper", "cabbage", "carrot", "potato", "apple", "mushroom", "grape"],
+  ["cabbage", "beet", "carrot", "potato", "pepper", "apple", "mushroom", "grape"],
+  ["cabbage", "beet", "carrot", "potato", "onion", "apple", "mushroom"],
+  ["cabbage", "beet", "carrot", "potato", "onion", "apple", "orange"]               // Dec
+][now.getMonth()];
+const pname = (k) => (PRODUCTS.find(p => p[0] === k) || [0, k])[1].toLowerCase();
+const seasonal = (id) => dishProducts(id).filter(k => SEASON.includes(k));
+
+// one honest line about why the dish is good, from its numbers
+function whyLine(id) {
+  const d = DISHES[id], out = [];
+  if (d.p >= 30) out.push("много белка: надолго насыщает");
+  else if (d.p >= 18) out.push("хороший белок для своей калорийности");
+  if (d.kcal <= 350) out.push("лёгкое, подходит при похудении");
+  if (d.c >= 60 && d.p < 30) out.push("много углеводов: энергия на полдня");
+  if (dishProducts(id).some(k => ["cabbage", "beet", "carrot", "cucumber", "tomato", "pepper", "greens", "frozenveg", "mushroom"].includes(k))) out.push("есть овощи и клетчатка");
+  if (d.f >= 32) out.push("жирное и сытное, лучше не на ночь");
+  return out.slice(0, 3).join(", ");
+}
+
+const LEFTOVERS = [
+  ["Варёная гречка", [
+    ["Гречка с яйцом на сковороде", "Разогрей 1 чайную ложку масла, выложи гречку и прогрей 2 минуты. Вбей 1–2 яйца, перемешивай 2 минуты, посоли."],
+    ["Гречневые котлетки", "Смешай стакан гречки, яйцо и 2 столовые ложки тёртого сыра. Слепи 4 котлетки мокрыми руками и жарь по 3 минуты с каждой стороны."],
+    ["Гречка с молоком", "Залей порцию гречки горячим молоком, 1 минута в микроволновке. Можно добавить банан."]]],
+  ["Варёный рис", [
+    ["Жареный рис с яйцом", "Обжарь 150 г замороженных овощей 5 минут, добавь рис и жарь ещё 3 минуты. Сдвинь всё к краю, вбей яйцо, размешай и полей ложкой соевого соуса. Рис лучше использовать в течение суток."],
+    ["Рис в суп", "Добавь пару ложек риса в куриный бульон за 2 минуты до конца варки."]]],
+  ["Макароны", [
+    ["Макароны с яйцом и сыром", "Разогрей макароны на сковороде с маслом 3 минуты, залей 2 взбитыми яйцами, посыпь сыром и накрой крышкой на 2 минуты."],
+    ["Салат с тунцом", "Смешай холодные макароны с банкой тунца, огурцом и ложкой йогурта или масла."]]],
+  ["Картошка или пюре", [
+    ["Драники из пюре", "Смешай 2 стакана пюре, яйцо и 2 столовые ложки муки. Выкладывай ложкой на сковороду с маслом и жарь по 3 минуты с каждой стороны."],
+    ["Жареная картошка с яйцом", "Нарежь варёную картошку кружочками, обжарь 5 минут до корочки и вбей сверху яйцо."]]],
+  ["Готовая курица", [
+    ["Шаурма за 5 минут", "Разбери курицу на волокна, заверни в лаваш с огурцом, капустой и ложкой сметаны с чесноком, обжарь по минуте с каждой стороны."],
+    ["Быстрый суп", "Вскипяти 500 мл воды с кубиком или остатком бульона, брось курицу и горсть вермишели, вари 4 минуты."]]],
+  ["Котлеты или мясо", [
+    ["Макароны по-флотски", "Разомни котлету вилкой, обжарь 2 минуты и перемешай с горячими макаронами."],
+    ["Горячий бутерброд", "Положи кусок котлеты на хлеб, сверху сыр, и в микроволновку на 40 секунд."]]],
+  ["Чёрствый хлеб", [
+    ["Французские тосты", "Взбей яйцо с 3 столовыми ложками молока, обмакни хлеб с двух сторон и жарь по 2 минуты на масле."],
+    ["Сухарики", "Нарежь кубиками, сбрызни маслом, посоли и подсуши на сухой сковороде 5–7 минут, помешивая."]]],
+  ["Половинки овощей", [
+    ["Омлет с овощами", "Мелко нарежь остатки перца, помидора, лука, обжарь 3 минуты и залей 2–3 взбитыми яйцами."],
+    ["Овощной суп", "Нарежь всё кубиками, залей водой, посоли и вари 15 минут. Можно добавить горсть риса или вермишели."]]]
+];
+const SAFETY = [
+  ["Как понять, что курица готова", "Разрежь самый толстый кусок: внутри нет розового, сок прозрачный. Если есть кухонный термометр, в середине должно быть не меньше 74 °C."],
+  ["Фарш и котлеты", "Фарш прожаривают полностью, без розового внутри. Сок из котлеты должен быть прозрачным, а не мутным и красным."],
+  ["Рыба", "Готовая рыба теряет прозрачность и легко расслаивается вилкой."],
+  ["Яйца", "Детям, беременным и пожилым лучше есть яйца с загустевшим желтком. Яйца с трещинами не используй."],
+  ["Разморозка", "Лучше всего в холодильнике за ночь. В микроволновке на режиме «разморозка» и сразу готовить. Не размораживай мясо на столе и не замораживай повторно."],
+  ["Сколько хранится готовая еда", "В холодильнике в закрытом контейнере: супы 2–4 дня, мясо и котлеты до 3 дней, рыба 1–2 дня, варёный рис 1 день, салаты со сметаной или майонезом до 12 часов."],
+  ["Остужай быстро", "Не оставляй готовое на плите дольше 2 часов. Разложи по контейнерам и убери в холодильник, когда еда перестала сильно парить."],
+  ["Разогрев", "Грей до горячего пара по всей порции, лучше с перемешиванием. Разогревай только один раз."],
+  ["Доски и руки", "Для сырого мяса и рыбы отдельная доска или мой её сразу горячей водой с мылом. После курицы и яиц мой руки."],
+  ["Когда выбросить", "Кислый или странный запах, слизь, пузырьки в супе, плесень. Если сомневаешься, не пробуй."]
+];
+const accordion = (items) => `<div class="rows">${items.map(([h, b]) => `<details class="spice"><summary><b>${h}</b><span class="mono">подробнее</span></summary><div>${Array.isArray(b) ? b.map(([t, x]) => `<p><span class="k mono">${t}</span>${emph(x)}</p>`).join("") : `<p>${emph(b)}</p>`}</div></details>`).join("")}</div>`;
+
+/* ---------- timers: several at once, visible anywhere ---------- */
+const TIMERS = [];
+let tickH = null;
+const tLeft = (t) => Math.max(0, Math.round((t.end - Date.now()) / 1000));
+function startTimer(key, label, sec) {
+  if (TIMERS.some(t => t.key === key && !t.done)) return;
+  TIMERS.push({ key, label, total: sec, end: Date.now() + sec * 1000, done: false });
+  try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); } catch {}
+  if (!tickH) tickH = setInterval(tickAll, 1000);
+  drawTimers();
+}
+function dropTimer(key) { const i = TIMERS.findIndex(t => t.key === key); if (i >= 0) TIMERS.splice(i, 1); drawTimers(); }
+function tickAll() {
+  TIMERS.forEach(t => { if (!t.done && tLeft(t) === 0) { t.done = true; beep(); toast(`Таймер: ${t.label}`); } });
+  if (!TIMERS.length) { clearInterval(tickH); tickH = null; }
+  document.querySelectorAll("[data-tleft]").forEach(el => { const t = TIMERS.find(x => x.key === el.dataset.tleft); if (t) el.textContent = t.done ? "готово" : mmss(tLeft(t)); });
+}
+function drawTimers() {
+  const bar = $("#tbar");
+  if (!bar) return;
+  bar.hidden = !TIMERS.length;
+  bar.innerHTML = TIMERS.map(t => `<span class="tchip ${t.done ? "end" : ""}"><span>${t.label}</span><b data-tleft="${t.key}">${t.done ? "готово" : mmss(tLeft(t))}</b><button type="button" data-tdrop="${t.key}" aria-label="Убрать таймер">×</button></span>`).join("");
+}
+
+/* ---------- picture to share ---------- */
+function loadImg(src) { return new Promise(res => { if (!src) return res(null); const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; }); }
+function wrapText(c, text, x, y, maxW, lh, maxLines) {
+  const words = text.split(" "); let line = "", lines = 0;
+  for (const w of words) {
+    const t = line ? line + " " + w : w;
+    if (c.measureText(t).width > maxW && line) { c.fillText(line, x, y); y += lh; line = w; if (++lines >= maxLines - 1) { line = words.slice(words.indexOf(w)).join(" "); break; } }
+    else line = t;
+  }
+  if (line) { while (c.measureText(line + "…").width > maxW && line.length > 4) line = line.slice(0, -2); c.fillText(line, x, y); y += lh; }
+  return y;
+}
+async function shareImage(kind) {
+  const W = 1080, H = 1350, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const c = cv.getContext("2d");
+  try { await document.fonts.ready; } catch {}
+  c.fillStyle = "#E6E0D5"; c.fillRect(0, 0, W, H);
+  const ink = "#1E1B17", muted = "#564F43", dot = "#C4572E";
+  if (kind === "week") {
+    c.fillStyle = ink; c.font = "600 92px Jost, sans-serif"; c.fillText("МЕНЮ НА НЕДЕЛЮ", 70, 170);
+    c.font = "400 30px 'IBM Plex Mono', monospace"; c.fillStyle = muted; c.fillText(`${GOALS[state.goal].label.toLowerCase()} · ~${fmt(state.weekCost * state.people)} ₽`, 74, 225);
+    let y = 300;
+    DAY_NAMES.forEach((nm, i) => {
+      c.strokeStyle = "#1E1B1740"; c.beginPath(); c.moveTo(70, y - 44); c.lineTo(W - 70, y - 44); c.stroke();
+      c.fillStyle = i === todayIdx ? dot : ink; c.font = "700 34px Philosopher, serif"; c.fillText(nm, 70, y);
+      c.fillStyle = ink; c.font = "400 26px 'Golos Text', sans-serif";
+      const names = dayDishes(i).filter(x => x.id && x.slot.key !== "side").map(x => title(x.id));
+      y = wrapText(c, names.join(" · "), 70, y + 42, W - 140, 34, 2) + 30;
+    });
+  } else {
+    const id = state.dish, d = DISHES[id], ings = resolveIng(id);
+    const im = await loadImg(hasPhoto(id) ? `img/${id}.jpg` : null);
+    if (im) { const h = 640, r = Math.max(W / im.width, h / im.height); c.drawImage(im, (W - im.width * r) / 2, (h - im.height * r) / 2 + 60, im.width * r, im.height * r); }
+    else { c.fillStyle = "#CFC5B4"; c.fillRect(0, 0, W, 640); c.fillStyle = "#1E1B1722"; c.font = "400 420px Philosopher, serif"; c.fillText(title(id)[0], 360, 560); }
+    c.fillStyle = "#EFEAE1"; c.fillRect(70, 560, W - 140, 640); c.strokeStyle = "#1E1B1752"; c.strokeRect(70, 560, W - 140, 640);
+    c.fillStyle = ink; c.font = "700 54px Philosopher, serif"; let y = wrapText(c, title(id), 110, 640, W - 220, 62, 2);
+    c.fillStyle = muted; c.font = "400 28px 'IBM Plex Mono', monospace"; c.fillText(`${d.time} мин · ${d.kcal} ккал · ~${d.price} ₽ за порцию`, 110, y + 6);
+    c.fillStyle = ink; c.font = "400 30px 'Golos Text', sans-serif"; y += 70;
+    ings.slice(0, 8).forEach(g => { const s = g.swapped ? g.alt : g; c.fillText("•  " + shortName(s.n), 110, y); c.fillStyle = muted; c.textAlign = "right"; c.fillText(s.q.replace(/\s*\([^)]*\)/, ""), W - 110, y); c.textAlign = "left"; c.fillStyle = ink; y += 46; });
+  }
+  c.fillStyle = dot; c.fillRect(70, H - 92, 60, 4);
+  c.fillStyle = ink; c.font = "600 34px Jost, sans-serif"; c.fillText("ЧТО ПОЕСТЬ?", 150, H - 76);
+  c.fillStyle = muted; c.font = "400 24px 'IBM Plex Mono', monospace"; c.textAlign = "right"; c.fillText("рецепт шаг за шагом в Telegram", W - 70, H - 78); c.textAlign = "left";
+  const url = cv.toDataURL("image/jpeg", 0.9);
+  try {
+    const blob = await (await fetch(url)).blob(), file = new File([blob], "chto-poest.jpg", { type: "image/jpeg" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+  } catch (e) { if (e && e.name === "AbortError") return; }
+  openSheet("pic", { url });
+}
+function picHtml() {
+  return `${sheetTop("Картинка готова")}<img class="share-img" src="${ctx.url}" alt="Карточка для отправки">
+    <p class="lede">Нажми на картинку и подержи, затем выбери «Сохранить» или «Поделиться». На компьютере: правая кнопка мыши → «Сохранить картинку как».</p>`;
+}
+
+/* ---------- put a dish into the week ---------- */
+function planHtml() {
+  const id = ctx.id, d = ctx.day ?? todayIdx;
+  return `${sheetTop("В меню недели")}
+    <p class="lede" style="margin:0">${title(id)}</p>
+    <div class="blk"><span class="spaced">День</span><div class="chips">${DAY_NAMES.map((n, i) => `<button class="chip" type="button" data-pday="${i}" aria-pressed="${i === d}">${n.toLowerCase()}${i === todayIdx ? " · сегодня" : ""}</button>`).join("")}</div></div>
+    <div class="blk"><span class="spaced">Приём пищи</span><div class="chips">${activeSlots().filter(s => s.key !== "side").map(s => `<button class="chip" type="button" data-pslot="${s.key}" aria-pressed="${s.key === ctx.slot}">${s.label.toLowerCase()}</button>`).join("")}</div></div>
+    <button class="cta solid" type="button" data-pset="1" style="text-align:center">Поставить в меню</button>`;
+}
+
 /* ---------- views ---------- */
 function homeHtml() {
   const g = GOALS[state.goal], list = todayDishes(), t = totals(list), dr = isTasty() ? drinkFor(todayIdx) : null;
   if (dr) t.kcal += dr.kcal;
+  const ate = totals(list.filter(x => state.ate.slots.includes(x.slot.key))), anyAte = state.ate.slots.length > 0;
   const pickItem = list.find(x => x.id && hasPhoto(x.id)) || list.find(x => x.id && x.slot.key === "dinner") || list.find(x => x.id);
   const pick = pickItem ? pickItem.id : PHOTO[0], d = DISHES[pick], pickWhen = pickItem ? pickItem.slot.label.toLowerCase() : "меню";
   const day = TASTY_WEEK[todayIdx];
@@ -2332,13 +2542,14 @@ function homeHtml() {
     </section>
     <div class="sec-head" id="today"><h2>Сегодня</h2><span class="spaced">${["пн","вт","ср","чт","пт","сб","вс"][todayIdx]}, ${now.getDate()} ${MONTHS[now.getMonth()]}</span></div>
     <button class="figs" type="button" data-open="nut" aria-label="Калории, белки, жиры и углеводы: подробнее">
-      <span><b>${fmt(t.kcal)}</b><i class="mono">ккал из ${fmt(g.kcal)}</i></span>
-      <span><b>${t.p} г</b><i class="mono">белка из ${g.p}</i></span>
+      <span><b>${fmt(anyAte ? ate.kcal : t.kcal)}</b><i class="mono">${anyAte ? "съедено" : "по плану"}, ккал из ${fmt(g.kcal)}</i></span>
+      <span><b>${anyAte ? ate.p : t.p} г</b><i class="mono">белка из ${g.p}</i></span>
       <span><b>${fmt(t.price * state.people)} ₽</b><i class="mono">на ${portions(state.people).replace("порцию", "человека").replace(/порци[ийя]/, "человек")}</i></span>
-      <em class="mono">чем добрать белки, жиры и углеводы →</em>
+      ${anyAte ? `<i class="eatbar"><i style="width:${Math.min(ate.kcal / g.kcal, 1) * 100}%"></i></i>` : ""}
+      <em class="mono">${anyAte ? `по плану ${fmt(t.kcal)} ккал · ` : "отмечай «съел», и здесь будет съеденное · "}чем добрать →</em>
     </button>
     <div class="rows">${list.map(({ slot, id }) => !id ? `<div class="rowd"><span class="rb"><span class="mono up">${slot.label}</span><span class="mono">под твои ограничения блюда нет</span></span></div>`
-      : `<div class="rowwrap">${rowHtml(id, "", slot)}${allowed(slot).length > 1 ? `<button class="link" type="button" data-swap="${slot.key}">заменить</button>` : ""}</div>`).join("")}
+      : `<div class="rowwrap ${state.ate.slots.includes(slot.key) ? "eaten" : ""}">${rowHtml(id, "", slot)}<span class="rowacts"><button class="eat" type="button" data-eat="${slot.key}" aria-pressed="${state.ate.slots.includes(slot.key)}">${state.ate.slots.includes(slot.key) ? "✓ съел" : "съел"}</button>${allowed(slot).length > 1 && !planFor(todayIdx, slot.key) ? `<button class="link" type="button" data-swap="${slot.key}">заменить</button>` : ""}</span></div>`).join("")}
       ${dr ? `<div class="rowwrap"><div class="rowd static"><span class="th"><span class="noph">${dr.n[0]}</span></span><span class="rb"><span class="mono up">напиток к ужину${day.mood ? " · " + noEmoji(MOODS[day.mood]).toLowerCase() : ""}</span><b>${dr.n}</b><span class="mono">${dr.q} · ${dr.kcal} ккал${dr.adult ? " · 18+" : ""}</span>${dr.adult ? `<span class="mono">без алкоголя: ${DRINKS[dr.soft].n.toLowerCase()}</span>` : ""}</span></div><button class="link" type="button" data-drink="1">другой</button></div>` : ""}
     </div>
     <p class="mono muted" style="margin:10px 0 0">${g.note}</p>
@@ -2357,18 +2568,21 @@ function weekHtml() {
     <div class="receipt" style="margin-top:0"><h3>бюджет на ${portions(state.people).replace("порцию", "человека").replace(/порци[ийя]/, "человек")}</h3>
       <div class="bud"><b>~${fmt(cost)} ₽</b><span class="mono">${state.budget ? (cost <= lim ? `укладываемся в ${fmt(lim)} ₽${state.level < 1 ? ", блюда подешевле" : ""}` : `в ${fmt(lim)} ₽ не укладываемся`) : "бюджет не задан"}</span></div>
       ${state.budget ? `<div class="rule" style="margin-bottom:12px"><i style="width:${Math.min(cost / lim, 1) * 100}%"></i></div>` : ""}
-      <footer><button class="link" type="button" data-open="settings">цель, бюджет, люди</button><button class="link" type="button" data-share="week">скопировать меню</button></footer></div>
+      <footer><button class="link" type="button" data-open="settings">цель, бюджет, люди</button><span class="linkset"><button class="link" type="button" data-share="week">текстом</button><button class="link" type="button" data-pic="week">картинкой</button></span></footer></div>
+    <p class="mono muted" style="margin:12px 0 0">Хочешь своё блюдо? Открой рецепт и нажми «в меню недели».</p>
     ${DAY_NAMES.map((name, i) => {
       const list = dayDishes(i), t = totals(list), dr = isTasty() ? drinkFor(i) : null, mood = isTasty() && TASTY_WEEK[i].mood;
       if (dr) t.kcal += dr.kcal;
       const date = new Date(monday); date.setDate(monday.getDate() + i);
       return `<div class="receipt day ${i === todayIdx ? "now" : ""}"><div class="day-h"><b>${name}, ${date.getDate()}</b><span class="mono">${i === todayIdx ? "сегодня · " : ""}${fmt(t.kcal)} ккал · ~${fmt(t.price * state.people)} ₽</span></div>
-        ${list.filter(x => x.id).map(({ slot, id }) => `<button class="item wk" type="button" data-dish="${id}"><span class="mono up">${slot.label}</span><span>${title(id)}</span><span class="q">${nutr(id, slot).kcal}</span></button>`).join("")}
+        ${list.filter(x => x.id).map(({ slot, id, own }) => `<button class="item wk ${own ? "own" : ""}" type="button" data-dish="${id}"><span class="mono up">${slot.label}</span><span>${title(id)}${own ? ` <i class="ownmark">своё</i>` : ""}</span><span class="q">${nutr(id, slot).kcal}</span></button>`).join("")}
+        ${list.some(x => x.own) ? `<div class="item wk"><span></span><button class="link" type="button" data-unplan="${i}" style="justify-self:start">вернуть меню дня</button><span></span></div>` : ""}
         ${dr ? `<div class="item wk"><span class="mono up">напиток</span><span>${dr.n}${dr.adult ? " · 18+" : ""}</span><span class="q">${mood ? noEmoji(MOODS[mood]).toLowerCase() : ""}</span></div>` : ""}
       </div>`;
     }).join("")}</div>`;
 }
 const R_CATS = () => [{ key: "sig", label: "С фото" }, { key: "fav", label: `Избранное${state.favs.length ? " · " + state.favs.length : ""}` }, { key: "fridge", label: "Из холодильника" },
+  { key: "prep", label: "На несколько дней" }, { key: "left", label: "Остатки" }, { key: "season", label: "Сезонное" }, { key: "safe", label: "Безопасность" },
   ...CATS.map(c => ({ ...c, label: noEmoji(c.label) }))];
 const dishProducts = (id) => [...new Set(DISHES[id].ing.flatMap(g => productsOf(g.n).map(p => p[0])))];
 function recListHtml() {
@@ -2379,6 +2593,11 @@ function recListHtml() {
     return `<p class="mono muted">найдено: ${ids.length}</p>` + rows(ids, "Ничего не нашлось. Попробуй другое слово, например «картошка» или «курица»."); }
   const cat = R_CATS().find(c => c.key === state.cat) || R_CATS()[0];
   if (cat.key === "sig") return `<div class="plates">${PHOTO.map((id, i) => plateHtml(id, i)).join("")}</div>`;
+  if (cat.key === "prep") return `<p class="lede">${PREP_NOTE}</p>` + rows(Object.keys(KEEP).filter(id => DISHES[id]).sort((a, b) => KEEP[b] - KEEP[a]), "Нет блюд под твои ограничения.");
+  if (cat.key === "left") return `<p class="lede">Осталось вчерашнее? Вот что из этого быстро сделать. Разогревай до горячего пара и только один раз.</p>` + accordion(LEFTOVERS);
+  if (cat.key === "safe") return `<p class="lede">Короткая шпаргалка, чтобы еда была не только вкусной, но и безопасной.</p>` + accordion(SAFETY);
+  if (cat.key === "season") return `<p class="lede">Сейчас в сезоне: ${SEASON.map(pname).join(", ")}. Они дешевле и вкуснее, а вот блюда с ними.</p>`
+    + rows(Object.keys(DISHES).filter(id => seasonal(id).length >= 2).sort((a, b) => seasonal(b).length - seasonal(a).length), "Сезонных блюд под твои ограничения нет.");
   if (cat.key === "fav") return rows(state.favs.filter(id => DISHES[id]), "Здесь будут любимые блюда. Открой рецепт и нажми «в избранное».");
   if (cat.key === "fridge") {
     const have = state.fridge;
@@ -2447,7 +2666,8 @@ function dishHtml(id) {
       <div class="stepper"><span class="mono">порции</span><div><button type="button" data-people="-1" aria-label="Меньше порций" ${k <= 1 ? "disabled" : ""}>−</button><b aria-live="polite">${k}</b><button type="button" data-people="1" aria-label="Больше порций" ${k >= 6 ? "disabled" : ""}>+</button></div></div>
       <button class="cta solid" type="button" data-cook="${id}">Готовить по шагам</button>
       <button class="cta" type="button" data-cart="${id}" aria-pressed="${inCart}">${inCart ? "В покупках ✓" : "В покупки"}</button>
-      <div class="linkrow"><button class="link" type="button" data-fav="${id}" aria-pressed="${fav}">${fav ? "♥︎ в избранном" : "♡ в избранное"}</button><button class="link" type="button" data-share="recipe">скопировать рецепт</button></div>
+      <div class="linkrow"><button class="link" type="button" data-fav="${id}" aria-pressed="${fav}">${fav ? "♥︎ в избранном" : "♡ в избранное"}</button><button class="link" type="button" data-plan="${id}">в меню недели</button></div>
+      <div class="linkrow"><button class="link" type="button" data-share="recipe">скопировать текстом</button><button class="link" type="button" data-pic="recipe">поделиться картинкой</button></div>
     </div>
     ${blocked.length ? `<p class="mono warn" style="margin:14px 0 0">В этом блюде есть продукт, который тебе нельзя: ${names([...new Set(blocked.flatMap(g => g.hit))])}.</p>` : ""}
     </div><div class="dish-r">
@@ -2458,12 +2678,16 @@ function dishHtml(id) {
     ${k > 1 ? `<p class="mono muted" style="margin:0 0 6px">В тексте шагов количество на 1 порцию. Продукты бери по составу выше.</p>` : ""}
     <div class="steps">${d.steps.map((s, i) => {
       const st = stepText(s, ings), sec = stepSeconds(st.text), im = VIS[id] && VIS[id].steps && VIS[id].steps[i];
-      const body = `<span class="n">${pad2(i + 1)}</span><span class="t">${emph(st.text)}<br>${sec ? `<span class="tag">таймер ${fmtDur(sec)}</span>` : ""}${st.swapped ? `<span class="tag">под замену</span>` : ""}</span>`;
+      const par = /^Пока /.test(st.text);
+      const body = `<span class="n">${pad2(i + 1)}</span><span class="t">${emph(st.text)}<br>${par ? `<span class="tag par">параллельно</span>` : ""}${sec ? `<span class="tag">таймер ${fmtDur(sec)}</span>` : ""}${st.swapped ? `<span class="tag">под замену</span>` : ""}</span>`;
       return `<button class="step ${im ? "pic" : ""}" type="button" data-step="${i}" aria-pressed="${!!done[i]}">${im ? `<img src="${im}" alt="" loading="lazy"><span class="body">${body}</span>` : body}</button>`;
     }).join("")}</div>
     ${sp.length ? `<div class="sec-head"><h2>Приправы</h2></div><div class="rows">${sp.map(x => spiceRow(x)).join("")}</div>` : ""}
     <div class="sec-head"><h2>Заметки</h2></div>
     <div class="notes">
+      ${whyLine(id) ? `<p><span class="k mono">чем хорошо</span>${whyLine(id)[0].toUpperCase() + whyLine(id).slice(1)}.</p>` : ""}
+      ${KEEP[id] ? `<p><span class="k mono">хранение</span>В холодильнике в закрытом контейнере до ${KEEP[id]} ${plural(KEEP[id], "дня", "дней", "дней").replace("дня", KEEP[id] === 1 ? "суток" : "дня")}. Можно готовить сразу на несколько дней.</p>` : ""}
+      ${seasonal(id).length ? `<p><span class="k mono">сезон</span>Сейчас сезон: ${seasonal(id).map(pname).join(", ")}. Дешевле и вкуснее, чем обычно.</p>` : ""}
       <p><span class="k mono">посуда</span>${d.tools.join(", ")}</p>
       ${d.tip ? `<p><span class="k mono">совет</span>${d.tip}</p>` : ""}
       ${d.buy ? `<p><span class="k mono">если лень готовить</span>Можно купить готовое ${d.buy.where}: примерно ${d.buy.price}, ${d.buy.kcal}. Дома выходит около ${d.price} ₽ за порцию.</p>` : ""}
@@ -2479,7 +2703,7 @@ function shopData() {
     const s = g.swapped ? g.alt : g, prods = productsOf(g.n), base = !prods.length;
     if (/^вода/i.test(s.n)) return;
     const p = base ? null : parseQty(s.q), key = s.n + "|" + (p ? p.unit : "");
-    const it = map.get(key) || { key, n: s.n, unit: p ? p.unit : "", val: 0, times: 0, sec: base ? "base" : prods[0][4] };
+    const it = map.get(key) || { key, n: s.n, unit: p ? p.unit : "", val: 0, times: 0, sec: base ? "base" : state.fridge.includes(prods[0][0]) ? "have" : prods[0][4] };
     if (p) it.val += p.val * k; it.times++;
     map.set(key, it);
   }));
@@ -2493,7 +2717,7 @@ function shopHtml() {
   if (!week && !cart.length) return `${head}<div class="empty" style="margin-top:16px"><p>Пока пусто. Открой блюдо и нажми «В покупки»: продукты соберутся здесь и сложатся между собой.</p><button class="cta" type="button" data-go="recipes">Открыть рецепты</button></div></div>`;
   const groups = shopData(), total = (week ? state.weekCost : cart.reduce((s, id) => s + DISHES[id].price, 0)) * state.people;
   let count = 0, done = 0;
-  const body = groups.map(g => `<h3>${SECTIONS[g.sec]}</h3>${g.items.map(it => { const on = !!state.checked[it.key]; count++; if (on) done++; return `<label class="item ${on ? "done" : ""}"><input type="checkbox" data-check="${it.key.replace(/"/g, "&quot;")}" ${on ? "checked" : ""}><span>${it.n}</span><span class="q">${qtyLabel(it)}</span></label>`; }).join("")}`).join("");
+  const body = groups.map(g => `<h3>${SECTIONS[g.sec]}</h3>${g.sec === "have" ? `<p class="mono muted" style="margin:2px 0 4px">Ты отметил это в «Холодильнике». Проверь, хватит ли количества.</p>` : ""}${g.items.map(it => { const have = g.sec === "have", on = !!state.checked[it.key]; if (!have) { count++; if (on) done++; } return `<label class="item ${on ? "done" : ""} ${have ? "have" : ""}"><input type="checkbox" data-check="${it.key.replace(/"/g, "&quot;")}" ${on ? "checked" : ""}><span>${it.n}</span><span class="q">${qtyLabel(it)}</span></label>`; }).join("")}`).join("");
   return `${head}
     ${week ? `<p class="mono muted" style="margin:12px 0 0">Собран из твоего меню на неделю с учётом замен и аллергий.</p>` : `<div class="chips" style="margin-top:14px">${cart.map(id => `<button class="chip" type="button" data-cart="${id}" aria-label="Убрать: ${title(id)}">${title(id)} ×</button>`).join("")}</div>`}
     <div class="receipt">${body}<footer><span class="mono">куплено ${done} из ${count}</span><b>~${fmt(total)} ₽</b></footer></div>
@@ -2534,23 +2758,14 @@ function go(view, dish) {
 
 /* ---------- sheets ---------- */
 let ctx = null;
-const timer = { total: 0, left: 0, run: false, h: null };
 let actx = null, wake = null, toastH = null;
 function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastH); toastH = setTimeout(() => { t.hidden = true; }, 2200); }
-function stopTimer() { if (timer.h) clearInterval(timer.h); timer.h = null; timer.run = false; }
-function setTimer(sec) { stopTimer(); timer.total = sec; timer.left = sec; }
 const mmss = (s) => `${pad2(Math.floor(s / 60))}:${pad2(s % 60)}`;
 function beep() {
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     [0, 0.35, 0.7].forEach(t => { const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = 880; o.connect(g); g.connect(actx.destination); g.gain.setValueAtTime(0.25, actx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + t + 0.25); o.start(actx.currentTime + t); o.stop(actx.currentTime + t + 0.26); });
   } catch {}
-}
-function tick() {
-  timer.left = Math.max(0, timer.left - 1);
-  const el = $("#timerVal");
-  if (el) el.textContent = timer.left ? mmss(timer.left) : "готово";
-  if (!timer.left) { stopTimer(); beep(); if (ctx && ctx.type === "cook") paint("[data-nav='1']"); }
 }
 const sheetTop = (t, right = "закрыть") => `<div class="sheet-top"><h2 id="sheetTitle">${t}</h2><button class="link" type="button" data-close="1">${right}</button></div>`;
 const BUDGETS = [0, 3000, 4000, 5000];
@@ -2602,20 +2817,33 @@ function stampsHtml() {
     <button class="cta solid" type="button" data-close="1" style="text-align:center">${fresh ? "Отлично" : "Закрыть"}</button>`;
 }
 function cookHtml() {
-  const { id, i } = ctx, d = DISHES[id], ings = resolveIng(id), st = stepText(d.steps[i], ings), last = i === d.steps.length - 1, im = VIS[id] && VIS[id].steps && VIS[id].steps[i];
+  const { id, i } = ctx, d = DISHES[id], ings = resolveIng(id);
+  if (i < 0) return `<div class="sheet-top"><span class="spaced" id="sheetTitle">${title(id)}</span><button class="link" type="button" data-close="1">закрыть</button></div>
+    <div class="rule"><i style="width:0"></i></div>
+    <div class="cook-body"><span class="cook-no">Подготовь</span>
+      <p class="lede" style="margin:0">Собери всё до начала, чтобы не искать посуду, когда что-то уже жарится.</p>
+      <div class="blk"><span class="spaced">Посуда</span><div class="rows">${d.tools.map((t, k) => `<label class="item"><input type="checkbox" data-prep="t${k}"><span>${t}</span><span></span></label>`).join("")}</div></div>
+      <div class="blk"><span class="spaced">Продукты на ${portions(state.people)}</span><div class="rows">${ings.map((g, k) => { const s = g.swapped ? g.alt : g; return `<label class="item"><input type="checkbox" data-prep="i${k}"><span>${s.n}</span><span class="q">${scaleQty(s.q, state.people)}</span></label>`; }).join("")}</div></div>
+    </div>
+    <div class="pair"><button class="cta" type="button" data-close="1">‹ выйти</button><button class="cta solid" type="button" data-nav="1">Начать готовить ›</button></div>`;
+  const st = stepText(d.steps[i], ings), last = i === d.steps.length - 1, im = VIS[id] && VIS[id].steps && VIS[id].steps[i];
+  const sec = stepSeconds(st.text), key = `${id}:${i}`, tm = TIMERS.find(t => t.key === key), par = /^Пока /.test(st.text);
   return `<div class="sheet-top"><span class="spaced" id="sheetTitle">${title(id)}</span><button class="link" type="button" data-close="1">закрыть</button></div>
     <div class="rule"><i style="width:${(i + 1) / d.steps.length * 100}%"></i></div>
-    <div class="cook-body">
+    <div class="cook-body" data-tap="1">
       ${im ? `<img class="cook-img" src="${im}" alt="">` : ""}
-      <span class="cook-no">${pad2(i + 1)}<span class="mono muted"> / ${pad2(d.steps.length)}</span></span>
+      <span class="cook-no">${pad2(i + 1)}<span class="mono muted"> / ${pad2(d.steps.length)}</span>${par ? ` <span class="tag par">параллельно</span>` : ""}</span>
       <p class="cook-text">${emph(st.text)}</p>
       ${state.people > 1 && i === 0 ? `<p class="mono muted" style="margin:0">Готовим ${portions(state.people)}: количество в тексте на одну, продукты бери по составу.</p>` : ""}
-      ${timer.total ? `<div class="timer"><span class="timer-val ${timer.left ? "" : "end"}" id="timerVal" aria-live="polite">${timer.left ? mmss(timer.left) : "готово"}</span>
-        <div class="chips"><button class="chip" type="button" data-timer="toggle" aria-pressed="${timer.run}">${timer.run ? "пауза" : timer.left === timer.total ? `запустить таймер на ${fmtDur(timer.total)}` : timer.left ? "продолжить" : "ещё раз"}</button>${timer.left !== timer.total ? `<button class="chip" type="button" data-timer="reset">сбросить</button>` : ""}</div></div>` : ""}
+      ${sec ? `<div class="timer">${tm ? `<span class="timer-val ${tm.done ? "end" : ""}" data-tleft="${key}" aria-live="polite">${tm.done ? "готово" : mmss(tLeft(tm))}</span>
+          <div class="chips"><button class="chip" type="button" data-tdrop="${key}">убрать таймер</button></div>`
+        : `<span class="timer-val">${mmss(sec)}</span><div class="chips"><button class="chip" type="button" data-tstart="${key}" data-tsec="${sec}" data-tlabel="${title(id).split(" ")[0]} · шаг ${i + 1}">запустить таймер на ${fmtDur(sec)}</button></div>`}
+        <p class="mono muted" style="margin:0">Таймер продолжит идти, даже если перейдёшь к следующему шагу. Можно запустить несколько.</p></div>` : ""}
+      <p class="mono muted tapnote">нажми на текст справа — дальше, слева — назад</p>
     </div>
-    <div class="pair"><button class="cta" type="button" data-nav="-1" ${i === 0 ? "disabled" : ""}>‹ назад</button><button class="cta solid" type="button" data-nav="1">${last ? "Я приготовил" : "Дальше ›"}</button></div>`;
+    <div class="pair"><button class="cta" type="button" data-nav="-1">‹ назад</button><button class="cta solid" type="button" data-nav="1">${last ? "Я приготовил" : "Дальше ›"}</button></div>`;
 }
-const SHEETS = { settings: settingsHtml, nut: nutHtml, roul: roulHtml, stamps: stampsHtml, cook: cookHtml };
+const SHEETS = { settings: settingsHtml, nut: nutHtml, roul: roulHtml, stamps: stampsHtml, cook: cookHtml, pic: () => picHtml(), plan: () => planHtml() };
 function paint(focusSel) {
   $("#sheet").className = ctx.type === "cook" ? "sheet full" : "sheet";
   $("#sheet").innerHTML = SHEETS[ctx.type]();
@@ -2624,27 +2852,24 @@ function paint(focusSel) {
   ((focusSel && $(focusSel)) || $("#sheet button"))?.focus();
 }
 function closeSheet() {
-  stopTimer();
   try { wake && wake.release(); } catch {} wake = null;
   $("#veil").hidden = true; ctx = null; render();
 }
 function openSheet(type, extra = {}) { ctx = { type, ...extra }; $("#sheet").scrollTop = 0; paint(); }
 function openCook(id) {
-  ctx = { type: "cook", id, i: 0 };
-  setTimer(stepSeconds(stepText(DISHES[id].steps[0], resolveIng(id)).text));
+  ctx = { type: "cook", id, i: -1 };
   paint("[data-nav='1']");
   try { navigator.wakeLock && navigator.wakeLock.request("screen").then(w => { wake = w; }).catch(() => {}); } catch {}
 }
 function cookNav(dir) {
   const d = DISHES[ctx.id];
-  if (dir > 0) { state.steps[ctx.id] = state.steps[ctx.id] || {}; state.steps[ctx.id][ctx.i] = true; }
+  if (dir < 0 && ctx.i <= 0) { ctx.i = -1; return paint("[data-nav='1']"); }
+  if (dir > 0 && ctx.i >= 0) { state.steps[ctx.id] = state.steps[ctx.id] || {}; state.steps[ctx.id][ctx.i] = true; }
   if (dir > 0 && ctx.i === d.steps.length - 1) {
-    stopTimer();
     state.cooked[ctx.id] = (state.cooked[ctx.id] || 0) + 1; store.set("cooked", state.cooked);
     return openSheet("stamps", { fresh: ctx.id });
   }
   ctx.i = Math.max(0, Math.min(d.steps.length - 1, ctx.i + dir));
-  setTimer(stepSeconds(stepText(d.steps[ctx.i], resolveIng(ctx.id)).text));
   $("#sheet").scrollTop = 0; paint("[data-nav='1']");
 }
 function shareText(kind) {
@@ -2665,6 +2890,10 @@ function applied(focusSel) { refresh(); if (ctx) paint(focusSel); else if (focus
 document.addEventListener("click", (e) => {
   if (e.target === $("#veil")) { if (ctx && ctx.type !== "cook") closeSheet(); return; }
   const t = e.target.closest("button");
+  if (!t && ctx && ctx.type === "cook" && ctx.i >= 0 && e.target.closest(".cook-body .cook-text, .cook-body .cook-img, .cook-body .cook-no")) {
+    const r = $(".cook-body").getBoundingClientRect();
+    return cookNav(e.clientX > r.left + r.width / 2 ? 1 : -1);
+  }
   if (!t || t.disabled) return;
   const ds = t.dataset;
   if (ds.close) return closeSheet();
@@ -2684,6 +2913,13 @@ document.addEventListener("click", (e) => {
   if (ds.shopmode) { state.shopMode = ds.shopmode; store.set("shopMode", state.shopMode); render(); $(`[data-shopmode="${ds.shopmode}"]`)?.focus(); return; }
   if (ds.uncheck) { state.checked = {}; store.set("checked", {}); return render(); }
   if (ds.share) return share(ds.share);
+  if (ds.pic) { toast("Готовлю картинку…"); return shareImage(ds.pic); }
+  if (ds.eat) { state.ate.slots = toggleIn(state.ate.slots, ds.eat); store.set("ate", state.ate); const y = window.scrollY; render(); window.scrollTo(0, y); $(`[data-eat="${ds.eat}"]`)?.focus({ preventScroll: true }); return; }
+  if (ds.unplan !== undefined) { delete state.plan.days[ds.unplan]; savePlan(); const y = window.scrollY; refresh(); window.scrollTo(0, y); return; }
+  if (ds.plan) { ctx = { type: "plan", id: ds.plan, day: todayIdx, slot: "dinner" }; return paint(); }
+  if (ds.pday !== undefined) { ctx.day = +ds.pday; return paint(`[data-pday="${ds.pday}"]`); }
+  if (ds.pslot) { ctx.slot = ds.pslot; return paint(`[data-pslot="${ds.pslot}"]`); }
+  if (ds.pset) { const dd = state.plan.days[ctx.day] = state.plan.days[ctx.day] || {}; dd[ctx.slot] = ctx.id; savePlan(); const msg = `${DAY_NAMES[ctx.day]}, ${(SLOTS.find(s => s.key === ctx.slot) || EXTRA_SLOT).label.toLowerCase()}: ${title(ctx.id)}`; closeSheet(); refresh(); return toast(msg); }
   if (ds.homescreen) { try { tg.addToHomeScreen(); } catch {} return; }
   if (ds.people) { state.people = Math.max(1, Math.min(6, state.people + +ds.people)); store.set("people", state.people); return applied(`[data-people="${ds.people}"]`); }
   if (ds.budget !== undefined) { state.budget = +ds.budget; store.set("budget", state.budget); return applied(`[data-budget="${ds.budget}"]`); }
@@ -2696,12 +2932,8 @@ document.addEventListener("click", (e) => {
   if (ds.spin) { spin(); return paint("[data-spin]"); }
   if (ds.cook) return openCook(ds.cook);
   if (ds.nav && ctx && ctx.type === "cook") return cookNav(+ds.nav);
-  if (ds.timer && ctx && ctx.type === "cook") {
-    if (ds.timer === "reset") setTimer(timer.total);
-    else if (timer.run) stopTimer();
-    else { if (!timer.left) timer.left = timer.total; timer.run = true; timer.h = setInterval(tick, 1000); try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); } catch {} }
-    return paint("[data-timer='toggle']");
-  }
+  if (ds.tstart) { startTimer(ds.tstart, ds.tlabel, +ds.tsec); if (ctx && ctx.type === "cook") paint(`[data-tdrop="${ds.tstart}"]`); return; }
+  if (ds.tdrop) { dropTimer(ds.tdrop); if (ctx && ctx.type === "cook") paint(); return; }
   if (state.view !== "dish") return;
   const id = state.dish, y = window.scrollY;
   if (ds.ing !== undefined) { state.ov[id] = state.ov[id] || {}; state.ov[id][ds.ing] = !state.ov[id][ds.ing]; store.set("ov", state.ov); refresh(); window.scrollTo(0, y); $(`[data-ing="${ds.ing}"]`)?.focus({ preventScroll: true }); return; }
